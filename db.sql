@@ -58,7 +58,7 @@ BEGIN
             JOIN COMUNIDADE c ON p.ESPECIE = c.ESPECIE AND p.COMUNIDADE = c.NOME
             JOIN NACAO n ON l.NACAO = n.NOME
             WHERE l.CPI = p_cpi
-            GROUP BY c.ESPECIE, c.NOME, c.QTD_HABITANTES, n.NOME
+            GROUP BY n.NOME
         ) LOOP
             DBMS_OUTPUT.PUT_LINE('Nação: ' || r.nacao_nome || ', Comunidade: ' || r.NOME || ', Espécie: ' || r.ESPECIE || ', Qtd Habitantes: ' || r.QTD_HABITANTES);
         END LOOP;
@@ -71,7 +71,7 @@ BEGIN
             JOIN PARTICIPA p ON f.NOME = p.FACCAO
             JOIN COMUNIDADE c ON p.ESPECIE = c.ESPECIE AND p.COMUNIDADE = c.NOME
             WHERE l.CPI = p_cpi
-            GROUP BY c.ESPECIE, c.NOME, c.QTD_HABITANTES
+            GROUP BY c.ESPECIE
         ) LOOP
             DBMS_OUTPUT.PUT_LINE('Espécie: ' || r.ESPECIE || ', Comunidade: ' || r.NOME || ', Qtd Habitantes: ' || r.QTD_HABITANTES);
         END LOOP;
@@ -85,7 +85,7 @@ BEGIN
             JOIN COMUNIDADE c ON p.ESPECIE = c.ESPECIE AND p.COMUNIDADE = c.NOME
             JOIN ESPECIE e ON c.ESPECIE = e.NOME
             WHERE l.CPI = p_cpi
-            GROUP BY c.ESPECIE, c.NOME, c.QTD_HABITANTES, e.PLANETA_OR
+            GROUP BY e.PLANETA_OR
         ) LOOP
             DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.PLANETA_OR || ', Comunidade: ' || r.NOME || ', Espécie: ' || r.ESPECIE || ', Qtd Habitantes: ' || r.QTD_HABITANTES);
         END LOOP;
@@ -102,7 +102,7 @@ BEGIN
             JOIN ORBITA_PLANETA op ON pl.ID_ASTRO = op.PLANETA
             JOIN SISTEMA s ON op.ESTRELA = s.ESTRELA
             WHERE l.CPI = p_cpi
-            GROUP BY c.ESPECIE, c.NOME, c.QTD_HABITANTES, s.NOME
+            GROUP BY s.NOME
         ) LOOP
             DBMS_OUTPUT.PUT_LINE('Sistema: ' || r.sistema_nome || ', Comunidade: ' || r.NOME || ', Espécie: ' || r.ESPECIE || ', Qtd Habitantes: ' || r.QTD_HABITANTES);
         END LOOP;
