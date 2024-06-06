@@ -1,4 +1,5 @@
-from flask import Flask,render_template
+from flask import Flask, render_template, request, redirect, url_for, flash
+import hashlib
 import db
 
 app = Flask(__name__)
@@ -18,8 +19,25 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
-    #logica de autenticação aqui
-    
+    if request.method == 'POST':
+        lider = request.form['lider']
+        password = request.form['password']
+
+        # Hash the input password using MD5
+        md5_hashed_password = hashlib.md5(password.encode()).hexdigest()
+
+        conn = db.get_db()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT Password FROM USERS WHERE Lider = :lider", {'lider': lider})
+        user = cursor.fetchone()
+
+        if user and user[0] == md5_hashed_password:
+            flash('Login successful!', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid credentials, please try again.', 'danger')
+
     return render_template('login.html')
 
 @app.route('/overview')
