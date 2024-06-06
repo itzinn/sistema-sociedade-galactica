@@ -1,8 +1,19 @@
 from flask import Flask,render_template
+import db
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '[hashgrandona]'
+
+db.init_app(app)
+
+@app.route('/')
+def index():
+    conn = db.get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT 'Hello, World!' FROM dual")
+    result = cursor.fetchone()
+    return result[0]
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
