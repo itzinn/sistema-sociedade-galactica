@@ -24,3 +24,19 @@ CREATE TABLE LOG_TABLE (
     message VARCHAR2(4000),
     CONSTRAINT fk_log_user FOREIGN KEY (Userid) REFERENCES USERS(Userid)
 );
+
+CREATE OR REPLACE PROCEDURE insert_missing_leaders AS
+BEGIN
+    FOR r IN (
+        SELECT l.CPI 
+        FROM LIDER l
+        LEFT JOIN USERS u ON l.CPI = u.Lider
+        WHERE u.Lider IS NULL
+    ) LOOP
+        INSERT INTO USERS (Lider, Password) 
+        VALUES (r.CPI, 'admin');
+    END LOOP;
+    
+    COMMIT;
+END;
+/
