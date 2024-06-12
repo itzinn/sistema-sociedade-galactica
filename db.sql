@@ -122,20 +122,23 @@ CREATE OR REPLACE PROCEDURE get_planet_info (
     p_cpi IN LIDER.CPI%TYPE,
     p_action IN VARCHAR2
 ) IS
+    v_nacao LIDER.NACAO%TYPE;
 BEGIN
+    -- Primeiro, obtemos a nação associada ao líder (CPI)
+    SELECT NACAO INTO v_nacao FROM LIDER WHERE CPI = p_cpi;
+
     IF p_action = 'DOMINIO' THEN
         DBMS_OUTPUT.PUT_LINE('Relatório de Planetas Dominados:');
         FOR r IN (
             SELECT 
                 pl.ID_ASTRO AS planeta,
                 dom.NACAO AS nacao_dominante,
-                dom.DATA_INI AS inicio_dominacao,
-                dom.DATA_FIM AS fim_dominacao,
-                COUNT(DISTINCT c.NOME) AS qtd_comunidades,
-                COUNT(DISTINCT e.NOME) AS qtd_especies,
-                SUM(c.QTD_HABITANTES) AS total_habitantes,
-                COUNT(DISTINCT f.NOME) AS qtd_faccoes,
-                MAX(f.NOME) KEEP (DENSE_RANK FIRST ORDER BY COUNT(f.NOME) DESC) AS faccao_majoritaria
+                TO_CHAR(dom.DATA_INI, 'DD/MM/YYYY') AS inicio_dominacao,
+                TO_CHAR(dom.DATA_FIM, 'DD/MM/YYYY') AS fim_dominacao,
+                c.NOME AS comunidade,
+                e.NOME AS especie,
+                c.QTD_HABITANTES AS total_habitantes,
+                f.NOME AS faccao
             FROM PLANETA pl
             LEFT JOIN DOMINANCIA dom ON pl.ID_ASTRO = dom.PLANETA
             LEFT JOIN HABITACAO h ON pl.ID_ASTRO = h.PLANETA
@@ -143,13 +146,13 @@ BEGIN
             LEFT JOIN ESPECIE e ON c.ESPECIE = e.NOME
             LEFT JOIN PARTICIPA p ON c.ESPECIE = p.ESPECIE AND c.NOME = p.COMUNIDADE
             LEFT JOIN FACCAO f ON p.FACCAO = f.NOME
-            GROUP BY pl.ID_ASTRO, dom.NACAO, dom.DATA_INI, dom.DATA_FIM
+            WHERE dom.NACAO IS NOT NULL
+            ORDER BY pl.ID_ASTRO, dom.DATA_INI
         ) LOOP
             DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || ', Nação Dominante: ' || r.nacao_dominante || 
-                                 ', Início da Dominação: ' || r.inicio_dominacao || ', Fim da Dominação: ' || r.fim_dominacao || 
-                                 ', Qtd Comunidades: ' || r.qtd_comunidades || ', Qtd Espécies: ' || r.qtd_especies || 
-                                 ', Total Habitantes: ' || r.total_habitantes || ', Qtd Facções: ' || r.qtd_faccoes || 
-                                 ', Facção Majoritária: ' || r.faccao_majoritaria);
+                                 ', Início da Dominação: ' || r.inicio_dominacao || ', Fim da Dominação: ' || NVL(r.fim_dominacao, 'Atualmente dominado') || 
+                                 ', Comunidade: ' || r.comunidade || ', Espécie: ' || r.especie || 
+                                 ', Total Habitantes: ' || NVL(r.total_habitantes, 0) || ', Facção: ' || NVL(r.faccao, 'Nenhuma'));
         END LOOP;
     ELSIF p_action = 'EXPANSAO' THEN
         DBMS_OUTPUT.PUT_LINE('Relatório de Potencial de Expansão:');
@@ -159,28 +162,41 @@ BEGIN
                 pl.MASSA,
                 pl.RAIO,
                 pl.CLASSIFICACAO,
+                es.NOME AS estrela,
                 s.NOME AS sistema,
-                MIN(POWER(s.X - s2.X, 2) + POWER(s.Y - s2.Y, 2) + POWER(s.Z - s2.Z, 2)) AS distancia_ao_territorio
+                (
+                    SELECT 
+                        MIN(SQRT(POWER(es.X - es_dominada.X, 2) + POWER(es.Y - es_dominada.Y, 2) + POWER(es.Z - es_dominada.Z, 2)))
+                    FROM DOMINANCIA d
+                    JOIN ORBITA_PLANETA op_dominada ON d.PLANETA = op_dominada.PLANETA
+                    JOIN ESTRELA es_dominada ON op_dominada.ESTRELA = es_dominada.ID_ESTRELA
+                    WHERE d.NACAO = v_nacao
+                ) AS distancia_ao_territorio
             FROM PLANETA pl
             JOIN ORBITA_PLANETA op ON pl.ID_ASTRO = op.PLANETA
-            JOIN SISTEMA s ON op.ESTRELA = s.ESTRELA
+            JOIN ESTRELA es ON op.ESTRELA = es.ID_ESTRELA
+            JOIN SISTEMA s ON es.ID_ESTRELA = s.ESTRELA
             LEFT JOIN DOMINANCIA dom ON pl.ID_ASTRO = dom.PLANETA
-            LEFT JOIN ORBITA_PLANETA op2 ON dom.PLANETA = op2.PLANETA
-            LEFT JOIN SISTEMA s2 ON op2.ESTRELA = s2.ESTRELA
             WHERE dom.NACAO IS NULL
-            GROUP BY pl.ID_ASTRO, pl.MASSA, pl.RAIO, pl.CLASSIFICACAO, s.NOME
-            HAVING MIN(POWER(s.X - s2.X, 2) + POWER(s.Y - s2.Y, 2) + POWER(s.Z - s2.Z, 2)) < 100 -- Ajuste o valor da distância conforme necessário
             ORDER BY distancia_ao_territorio
         ) LOOP
-            DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || ', Massa: ' || r.MASSA || ', Raio: ' || r.RAIO || 
-                                 ', Classificação: ' || r.CLASSIFICACAO || ', Sistema: ' || r.sistema || 
-                                 ', Distância ao Território: ' || r.distancia_ao_territorio);
+            -- Verifica se a distância é nula antes de exibir
+            IF r.distancia_ao_territorio IS NOT NULL THEN
+                DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || ', Massa: ' || r.MASSA || ', Raio: ' || r.RAIO || 
+                                     ', Classificação: ' || r.CLASSIFICACAO || ', Sistema: ' || r.sistema || ', Estrela: ' || r.estrela ||
+                                     ', Distância ao Território: ' || r.distancia_ao_territorio);
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || ', Massa: ' || r.MASSA || ', Raio: ' || r.RAIO || 
+                                     ', Classificação: ' || r.CLASSIFICACAO || ', Sistema: ' || r.sistema || ', Estrela: ' || r.estrela ||
+                                     ', Distância ao Território: N/A');
+            END IF;
         END LOOP;
     ELSE
         DBMS_OUTPUT.PUT_LINE('Ação não especificada ou inválida.');
     END IF;
 END;
 /
+
 
 
 CREATE OR REPLACE PROCEDURE monitor_planet_info (
