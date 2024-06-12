@@ -184,42 +184,104 @@ END;
 
 
 CREATE OR REPLACE PROCEDURE monitor_planet_info (
-    p_start_date IN DATE,
-    p_end_date IN DATE
+    p_start_date IN DATE DEFAULT NULL,
+    p_end_date IN DATE DEFAULT NULL
 ) IS
 BEGIN
-    DBMS_OUTPUT.PUT_LINE('Monitoramento de Planetas de ' || TO_CHAR(p_start_date, 'DD/MM/YYYY') || ' até ' || TO_CHAR(p_end_date, 'DD/MM/YYYY'));
+    DBMS_OUTPUT.PUT_LINE('Monitoramento de Planetas:');
+    
+    -- Condicional para determinar se a janela de tempo é especificada
+    IF p_start_date IS NOT NULL AND p_end_date IS NOT NULL THEN
+        DBMS_OUTPUT.PUT_LINE('Intervalo de Tempo: ' || TO_CHAR(p_start_date, 'DD/MM/YYYY') || ' até ' || TO_CHAR(p_end_date, 'DD/MM/YYYY'));
+        
+        -- Combinando Dominações e Habitações dentro da janela de tempo
+        FOR r IN (
+            SELECT
+                pl.ID_ASTRO AS planeta,
+                'DOMINACAO' AS tipo,
+                dom.DATA_INI AS data_inicio,
+                dom.DATA_FIM AS data_fim,
+                dom.NACAO AS detalhe_1,
+                NULL AS detalhe_2,
+                NULL AS detalhe_3
+            FROM PLANETA pl
+            LEFT JOIN DOMINANCIA dom ON pl.ID_ASTRO = dom.PLANETA
+            WHERE dom.DATA_INI <= p_end_date AND (dom.DATA_FIM >= p_start_date OR dom.DATA_FIM IS NULL)
 
-    -- Monitoramento de Dominações de Planetas
-    FOR r IN (
-        SELECT 
-            dom.PLANETA AS planeta,
-            dom.NACAO AS nacao_dominante,
-            dom.DATA_INI AS inicio_dominacao,
-            dom.DATA_FIM AS fim_dominacao
-        FROM DOMINANCIA dom
-        WHERE dom.DATA_INI <= p_end_date AND (dom.DATA_FIM >= p_start_date OR dom.DATA_FIM IS NULL)
-        ORDER BY dom.PLANETA, dom.DATA_INI
-    ) LOOP
-        DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || ', Nação Dominante: ' || r.nacao_dominante || 
-                             ', Início da Dominação: ' || r.inicio_dominacao || ', Fim da Dominação: ' || NVL(r.fim_dominacao, 'Atualmente dominado'));
-    END LOOP;
+            UNION ALL
 
-    -- Monitoramento de Habitações de Planetas
-    FOR r IN (
-        SELECT 
-            h.PLANETA AS planeta,
-            h.ESPECIE AS especie,
-            h.COMUNIDADE AS comunidade,
-            h.DATA_INI AS inicio_habitacao,
-            h.DATA_FIM AS fim_habitacao
-        FROM HABITACAO h
-        WHERE h.DATA_INI <= p_end_date AND (h.DATA_FIM >= p_start_date OR h.DATA_FIM IS NULL)
-        ORDER BY h.PLANETA, h.DATA_INI
-    ) LOOP
-        DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || ', Espécie: ' || r.especie || ', Comunidade: ' || r.comunidade || 
-                             ', Início da Habitação: ' || r.inicio_habitacao || ', Fim da Habitação: ' || NVL(r.fim_habitacao, 'Atualmente habitado'));
-    END LOOP;
+            SELECT
+                pl.ID_ASTRO AS planeta,
+                'HABITACAO' AS tipo,
+                h.DATA_INI AS data_inicio,
+                h.DATA_FIM AS data_fim,
+                h.ESPECIE AS detalhe_1,
+                h.COMUNIDADE AS detalhe_2,
+                NULL AS detalhe_3
+            FROM PLANETA pl
+            LEFT JOIN HABITACAO h ON pl.ID_ASTRO = h.PLANETA
+            WHERE h.DATA_INI <= p_end_date AND (h.DATA_FIM >= p_start_date OR h.DATA_FIM IS NULL)
 
+            ORDER BY planeta, data_inicio
+        ) LOOP
+            IF r.tipo = 'DOMINACAO' THEN
+                DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || 
+                                     ', Nação Dominante: ' || r.detalhe_1 || 
+                                     ', Início da Dominação: ' || TO_CHAR(r.data_inicio, 'DD/MM/YYYY') || 
+                                     ', Fim da Dominação: ' || NVL(TO_CHAR(r.data_fim, 'DD/MM/YYYY'), 'Atualmente dominado'));
+            ELSIF r.tipo = 'HABITACAO' THEN
+                DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || 
+                                     ', Espécie Habitante: ' || r.detalhe_1 || 
+                                     ', Comunidade Habitante: ' || r.detalhe_2 || 
+                                     ', Início da Habitação: ' || TO_CHAR(r.data_inicio, 'DD/MM/YYYY') || 
+                                     ', Fim da Habitação: ' || NVL(TO_CHAR(r.data_fim, 'DD/MM/YYYY'), 'Atualmente habitado'));
+            END IF;
+        END LOOP;
+
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Linha do Tempo Completa de Informações dos Planetas:');
+        
+        -- Combinando Dominações e Habitações completas
+        FOR r IN (
+            SELECT
+                pl.ID_ASTRO AS planeta,
+                'DOMINACAO' AS tipo,
+                dom.DATA_INI AS data_inicio,
+                dom.DATA_FIM AS data_fim,
+                dom.NACAO AS detalhe_1,
+                NULL AS detalhe_2,
+                NULL AS detalhe_3
+            FROM PLANETA pl
+            LEFT JOIN DOMINANCIA dom ON pl.ID_ASTRO = dom.PLANETA
+
+            UNION ALL
+
+            SELECT
+                pl.ID_ASTRO AS planeta,
+                'HABITACAO' AS tipo,
+                h.DATA_INI AS data_inicio,
+                h.DATA_FIM AS data_fim,
+                h.ESPECIE AS detalhe_1,
+                h.COMUNIDADE AS detalhe_2,
+                NULL AS detalhe_3
+            FROM PLANETA pl
+            LEFT JOIN HABITACAO h ON pl.ID_ASTRO = h.PLANETA
+
+            ORDER BY planeta, data_inicio
+        ) LOOP
+            IF r.tipo = 'DOMINACAO' THEN
+                DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || 
+                                     ', Nação Dominante: ' || r.detalhe_1 || 
+                                     ', Início da Dominação: ' || TO_CHAR(r.data_inicio, 'DD/MM/YYYY') || 
+                                     ', Fim da Dominação: ' || NVL(TO_CHAR(r.data_fim, 'DD/MM/YYYY'), 'Atualmente dominado'));
+            ELSIF r.tipo = 'HABITACAO' THEN
+                DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || 
+                                     ', Espécie Habitante: ' || r.detalhe_1 || 
+                                     ', Comunidade Habitante: ' || r.detalhe_2 || 
+                                     ', Início da Habitação: ' || TO_CHAR(r.data_inicio, 'DD/MM/YYYY') || 
+                                     ', Fim da Habitação: ' || NVL(TO_CHAR(r.data_fim, 'DD/MM/YYYY'), 'Atualmente habitado'));
+            END IF;
+        END LOOP;
+    END IF;
 END;
 /
