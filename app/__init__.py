@@ -23,15 +23,20 @@ def login():
         lider = request.form['lider']
         password = request.form['password']
 
+        print(f"Received lider: {lider}")
+        print(f"Received password: {password}")
+        
         # Hash the input password using MD5
         md5_hashed_password = hashlib.md5(password.encode()).hexdigest()
-
+        print(f"Hashed password: {md5_hashed_password}")
+        
         conn = db.get_db()
         cursor = conn.cursor()
 
         cursor.execute("SELECT Password FROM USERS WHERE Lider = :lider", {'lider': lider})
         user = cursor.fetchone()
-
+        print(f"Retrieved user: {user}")
+        
         if user and user[0] == md5_hashed_password:
             flash('Login successful!', 'success')
             return redirect(url_for('index'))
