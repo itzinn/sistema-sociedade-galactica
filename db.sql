@@ -1,3 +1,4 @@
+-- Tabela de usuários
 CREATE TABLE USERS (
     UserID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     Lider CHAR(14 BYTE) UNIQUE,
@@ -5,6 +6,7 @@ CREATE TABLE USERS (
     CONSTRAINT fk_lider FOREIGN KEY (Lider) REFERENCES LIDER(CPI)
 );
 
+-- Trigger para conversão de senhas através de md5
 CREATE OR REPLACE TRIGGER trg_users_password
 BEFORE INSERT OR UPDATE ON USERS
 FOR EACH ROW
@@ -12,12 +14,12 @@ DECLARE
     md5_val USERS.Password%type;
 BEGIN
     SELECT DBMS_OBFUSCATION_TOOLKIT.md5 (input => UTL_RAW.cast_to_raw(:NEW.Password)) into md5_val FROM DUAL;
-    -- Usa a função DBMS_OBFUSCATION_TOOLKIT.md5 para calcular o hash MD5 da senha. 
-    -- A função UTL_RAW.cast_to_raw converte a senha para um formato RAW adequado para a função MD5.
     :NEW.Password := md5_val;
 END;
 /
 
+
+-- Tabela de log de atividades dos usuários
 CREATE TABLE LOG_TABLE (
     Userid NUMBER,
     log_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -25,6 +27,8 @@ CREATE TABLE LOG_TABLE (
     CONSTRAINT fk_log_user FOREIGN KEY (Userid) REFERENCES USERS(Userid)
 );
 
+
+-- Procedure que insere todos os lideres não cadastrados na tabela de usuários.
 CREATE OR REPLACE PROCEDURE insert_missing_leaders AS
 BEGIN
     FOR r IN (
@@ -42,7 +46,7 @@ END;
 /
 
 
-
+-- Procedure que retorna os valores de todas as comunidades da facção de um lider, agrupadas por Nação, Especie, Planeta ou Sistema. Agrupamento é definido por parâmetro. 
 CREATE OR REPLACE PROCEDURE get_communities_info (
     p_cpi IN LIDER.CPI%TYPE,
     p_group_by IN VARCHAR2
@@ -117,14 +121,13 @@ END;
 
 
 
-
+-- Procedure que retorna informações de planetas dominados pela facção de um lider ou possíveis expansões para sua facção. A ação é definida por parâmetro.
 CREATE OR REPLACE PROCEDURE get_planet_info (
     p_cpi IN LIDER.CPI%TYPE,
     p_action IN VARCHAR2
 ) IS
     v_nacao LIDER.NACAO%TYPE;
 BEGIN
-    -- Primeiro, obtemos a nação associada ao líder (CPI)
     SELECT NACAO INTO v_nacao FROM LIDER WHERE CPI = p_cpi;
 
     IF p_action = 'DOMINIO' THEN
@@ -180,7 +183,6 @@ BEGIN
             WHERE dom.NACAO IS NULL
             ORDER BY distancia_ao_territorio
         ) LOOP
-            -- Verifica se a distância é nula antes de exibir
             IF r.distancia_ao_territorio IS NOT NULL THEN
                 DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || ', Massa: ' || r.MASSA || ', Raio: ' || r.RAIO || 
                                      ', Classificação: ' || r.CLASSIFICACAO || ', Sistema: ' || r.sistema || ', Estrela: ' || r.estrela ||
@@ -199,6 +201,7 @@ END;
 
 
 
+-- Procedure que retorna uma linha do tempo das informações de todos os planetas, podendo ou não ser de uma janela de tempo específica.
 CREATE OR REPLACE PROCEDURE monitor_planet_info (
     p_start_date IN DATE DEFAULT NULL,
     p_end_date IN DATE DEFAULT NULL
@@ -206,11 +209,9 @@ CREATE OR REPLACE PROCEDURE monitor_planet_info (
 BEGIN
     DBMS_OUTPUT.PUT_LINE('Monitoramento de Planetas:');
     
-    -- Condicional para determinar se a janela de tempo é especificada
     IF p_start_date IS NOT NULL AND p_end_date IS NOT NULL THEN
         DBMS_OUTPUT.PUT_LINE('Intervalo de Tempo: ' || TO_CHAR(p_start_date, 'DD/MM/YYYY') || ' até ' || TO_CHAR(p_end_date, 'DD/MM/YYYY'));
         
-        -- Combinando Dominações e Habitações dentro da janela de tempo
         FOR r IN (
             SELECT
                 pl.ID_ASTRO AS planeta,
@@ -257,7 +258,6 @@ BEGIN
     ELSE
         DBMS_OUTPUT.PUT_LINE('Linha do Tempo Completa de Informações dos Planetas:');
         
-        -- Combinando Dominações e Habitações completas
         FOR r IN (
             SELECT
                 pl.ID_ASTRO AS planeta,
