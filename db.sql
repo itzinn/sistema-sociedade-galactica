@@ -185,11 +185,12 @@ BEGIN
                                  ', Início da Dominação: ' || r.inicio_dominacao || ', Fim da Dominação: ' || NVL(r.fim_dominacao, 'Atualmente dominado') || 
                                  ', Comunidade: ' || r.comunidade || ', Espécie: ' || r.especie || 
                                  ', Total Habitantes: ' || NVL(r.total_habitantes, 0) || ', Facção: ' || NVL(r.faccao, 'Nenhuma'));
-            ELSE THEN
+            ELSE
                  DBMS_OUTPUT.PUT_LINE('Planeta: ' || r.planeta || ', Nação Dominante: ' || r.nacao_dominante || 
                                  ', Início da Dominação: ' || r.inicio_dominacao || ', Fim da Dominação: ' || NVL(r.fim_dominacao, 'Atualmente dominado') || 
                                  ', Comunidade: ' || r.comunidade || ', Espécie: Inacessível' || 
                                  ', Total Habitantes: Inacessível'  || ', Facção: ' || NVL(r.faccao, 'Nenhuma'));
+END IF;
         END LOOP;
     ELSIF p_action = 'EXPANSAO' THEN
         DBMS_OUTPUT.PUT_LINE('Relatório de Potencial de Expansão:');
