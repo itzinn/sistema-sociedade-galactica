@@ -3,41 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Relatórios</title>
 </head>
 <body>
-    <div class="reports-container">
-        <h1>Reports</h1>
-        <div class="report-buttons">
-            <button onclick="generateReport('leader')">Leader Reports</button>
-            <button onclick="generateReport('officer')">Officer Reports</button>
-            <button onclick="generateReport('commander')">Commander Reports</button>
-        </div>
-        <div id="report-output">
-            <!-- Report content will be displayed here -->
-        </div>
+    <h1>Relatórios</h1>
+    <!-- Exibir informações de relatórios -->
+    <div>
+        {{ relatorios_info }}
     </div>
-
-    <script>
-        function generateReport(userType) {
-            let output = document.getElementById('report-output');
-            output.innerHTML = '';
-
-            switch(userType) {
-                case 'leader':
-                    output.innerHTML = '<h2>Leader Reports</h2><p>Community information for your faction...</p>';
-                    break;
-                case 'officer':
-                    output.innerHTML = '<h2>Officer Reports</h2><p>Population growth and migration data...</p>';
-                    break;
-                case 'commander':
-                    output.innerHTML = '<h2>Commander Reports</h2><p>Planet dominance information...</p>';
-                    break;
-                default:
-                    output.innerHTML = '<p>Select a valid report type.</p>';
-            }
-        }
-    </script>
 </body>
 </html>

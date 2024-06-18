@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import hashlib
 import db
+from utils.get_infos import get_overview_info, get_relatorios_info
 
 app = Flask(__name__)
 
@@ -33,11 +34,12 @@ def login():
         conn = db.get_db()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT Password FROM USERS WHERE Lider = :lider", {'lider': lider})
+        cursor.execute("SELECT * FROM USERS WHERE Lider = :lider", {'lider': lider})
         user = cursor.fetchone()
         print(f"Retrieved user: {user}")
         
         if user and user[0] == md5_hashed_password:
+            session['user'] = user
             flash('Login successful!', 'success')
             return redirect(url_for('index'))
         else:
@@ -47,15 +49,25 @@ def login():
 
 @app.route('/overview')
 def overview():
-    
-    #lógica para obter infos de overview aqui
+    if 'user' not in session:
+        return redirect(url_for('login'))
 
-    return render_template('overview.html')
+    user = session['user']
+    #usertype = session['usertype'] como obter usertype?
+
+    #overview_info = get_overview_info(usertype)
+
+    return render_template('overview.html', user=user)
 
 @app.route('/relatorios')
 def relatorios():
 
-    #lógica para gerar relatorios aqui
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    #usertype = session['usertype']
+
+    #relatorios_info = get_relatorios_info(usertype)
 
     return render_template('relatorios.html')
 

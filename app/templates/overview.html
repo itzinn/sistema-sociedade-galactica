@@ -4,17 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Overview</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="overview-container">
-        <h1>Welcome, [Username]</h1>
-        <p>Overview Information:</p>
-        <!-- Add overview details here -->
-        <div class="overview-actions">
-            <button onclick="window.location.href='interface3.html'">Go to Reports</button>
-            <!-- Add more actions as needed -->
-        </div>
+    <h1>Overview</h1>
+    <p>Bem-vindo, {{ user }}!</p>
+    <!-- Exibir informações de overview -->
+    <div>
+        {{ overview_info }}
     </div>
+    <!-- Links para funcionalidades -->
+    <a href="{{ url_for('relatorios') }}">Relatórios</a>
+    <!-- Adicione mais links/botões conforme necessário -->
 </body>
 </html>
