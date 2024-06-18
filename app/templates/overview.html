@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,14 +6,10 @@
     <title>Overview</title>
 </head>
 <body>
-    <h1>Overview</h1>
-    <p>Bem-vindo, {{ user }}!</p>
-    <!-- Exibir informações de overview -->
+    <h1>Bem-vindo, {{ user }}!</h1>
     <div>
-        {{ overview_info }}
+        {{ overview_info | safe }}
     </div>
-    <!-- Links para funcionalidades -->
-    <a href="{{ url_for('relatorios') }}">Relatórios</a>
-    <!-- Adicione mais links/botões conforme necessário -->
+    <a href="/relatorios">Ir para Relatórios</a>
 </body>
 </html>
