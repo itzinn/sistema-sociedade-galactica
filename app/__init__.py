@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import hashlib
 import db
 from utils.get_infos import get_overview_info, get_relatorios_info
+from utils.procedures import call_alterar_nome_faccao
 
 app = Flask(__name__)
 
@@ -75,7 +76,9 @@ def relatorios():
 @app.route('/alterar_nome_faccao', methods=['POST'])
 def alterar_nome_faccao():
     novo_nome = request.form['novo_nome']
-    # lógica para alterar o nome da facção
+    
+    call_alterar_nome_faccao(novo_nome)
+    
     flash('Nome da facção alterado com sucesso!', 'success')
     return redirect(url_for('overview'))
 
