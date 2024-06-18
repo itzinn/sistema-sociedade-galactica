@@ -28,6 +28,34 @@ CREATE TABLE LOG_TABLE (
 );
 
 
+-- Procedure que retorna o cargo de um lider e se ele é lider de uma facção
+CREATE OR REPLACE PROCEDURE get_leader_info (
+    p_cpi IN LIDER.CPI%TYPE 
+) IS
+    v_cargo LIDER.CARGO%TYPE; 
+    v_e_lider VARCHAR2(5); 
+BEGIN
+    SELECT CARGO INTO v_cargo FROM LIDER WHERE CPI = p_cpi;
+
+    SELECT CASE WHEN EXISTS (
+        SELECT 1
+        FROM FACCAO
+        WHERE LIDER = p_cpi
+    )
+    THEN 'TRUE' ELSE 'FALSE' END INTO v_e_lider
+    FROM DUAL;
+
+    -- Exibe a saída no formato "CARGO / É LIDER".
+    DBMS_OUTPUT.PUT_LINE(v_cargo || ' / ' || v_e_lider);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Nenhum líder encontrado com o CPI fornecido.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Erro: ' || SQLERRM);
+END;
+/
+
+
 -- Procedure que insere todos os lideres não cadastrados na tabela de usuários.
 CREATE OR REPLACE PROCEDURE insert_missing_leaders AS
 BEGIN
