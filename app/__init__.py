@@ -6,12 +6,14 @@ from routes.relatorios import relatorios_bp
 from routes.lideres import lideres_bp
 from routes.comandante import comandante_bp
 from routes.cientista import cientista_bp
+from routes.index import index_bp
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '[hashgrandona]'
 
 db.init_app(app)
 
+app.register_blueprint(index_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(overview_bp)
 app.register_blueprint(relatorios_bp)
