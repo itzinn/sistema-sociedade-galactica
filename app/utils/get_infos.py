@@ -1,4 +1,5 @@
-from utils.procedures import call_get_planet_info, call_monitor_planet_info, call_relatorio_estrelas, call_relatorio_planetas, call_relatorio_sistemas
+from utils.procedures import call_get_planet_info, call_monitor_planet_info, call_relatorio_estrelas, call_relatorio_planetas, \
+    call_relatorio_sistemas, call_relatorio_corpos_celestes, call_relatorio_cc_otimizado
 
 def get_overview_info(usertype):
     forms = ''
@@ -150,12 +151,26 @@ def get_relatorios_info(usertype, cpi, action):
 
         info += '<br><br>'
 
+        relatorio_corpos_celestes = call_relatorio_corpos_celestes()
+
+        info += relatorio_corpos_celestes
+
+        info += '<br><br>'
+
+        relatorio_cc_otimizado = call_relatorio_cc_otimizado()
+
+        info += relatorio_cc_otimizado
+
+        info += '<br><br>'
+
     return info
 
 def get_relatorios_lider_info(ehLider):
 
+    info = ''
+
     if(ehLider == 'TRUE'):
-        info = '<br><hr><br>'
+        info += '<br><hr><br>'
         info += '<br><h2>Relatório de Líder de Facção</h2><br>'
         info += '..vc é lider, parabens cara'
 
