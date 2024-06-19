@@ -236,19 +236,24 @@ def call_relatorio_planetas():
         cursor.callproc('PacoteCientista.relatorio_planetas')
         
         output = []
-        while True:
-            line = cursor.callproc("DBMS_OUTPUT.GET_LINE", (oracledb.STRING_VAR, 0))
-            if line[1] != 0:
-                break
-            output.append(line[0])
+        line_var = cursor.arrayvar(oracledb.STRING, 32767)  # Large enough array to hold the output lines
+        num_lines_var = cursor.var(oracledb.NUMBER)
         
-        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        while True:
+            num_lines_var.setvalue(0, 10000)  # Number of lines to fetch
+            cursor.callproc("DBMS_OUTPUT.GET_LINES", (line_var, num_lines_var))
+            num_lines = int(num_lines_var.getvalue())
+            lines = line_var.getvalue()[:num_lines]
+            output.extend(lines)
+            if num_lines < 10000:
+                break
         
         formatted_output = "<br>".join(line.strip() for line in output)
         return formatted_output
     except Exception as e:
         print(f"Erro ao gerar relatório de planetas: {e}")
     finally:
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
         cursor.close()
 
 def call_relatorio_sistemas():
@@ -259,19 +264,24 @@ def call_relatorio_sistemas():
         cursor.callproc('PacoteCientista.relatorio_sistemas')
         
         output = []
-        while True:
-            line = cursor.callproc("DBMS_OUTPUT.GET_LINE", (oracledb.STRING_VAR, 0))
-            if line[1] != 0:
-                break
-            output.append(line[0])
+        line_var = cursor.arrayvar(oracledb.STRING, 32767)  # Large enough array to hold the output lines
+        num_lines_var = cursor.var(oracledb.NUMBER)
         
-        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        while True:
+            num_lines_var.setvalue(0, 10000)  # Number of lines to fetch
+            cursor.callproc("DBMS_OUTPUT.GET_LINES", (line_var, num_lines_var))
+            num_lines = int(num_lines_var.getvalue())
+            lines = line_var.getvalue()[:num_lines]
+            output.extend(lines)
+            if num_lines < 10000:
+                break
         
         formatted_output = "<br>".join(line.strip() for line in output)
         return formatted_output
     except Exception as e:
         print(f"Erro ao gerar relatório de sistemas: {e}")
     finally:
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
         cursor.close()
 
 def call_relatorio_corpos_celestes(ref_id, ref_type, dist_min, dist_max):
@@ -282,19 +292,24 @@ def call_relatorio_corpos_celestes(ref_id, ref_type, dist_min, dist_max):
         cursor.callproc('PacoteCientista.relatorio_corpos_celestes', [ref_id, ref_type, dist_min, dist_max])
         
         output = []
-        while True:
-            line = cursor.callproc("DBMS_OUTPUT.GET_LINE", (oracledb.STRING_VAR, 0))
-            if line[1] != 0:
-                break
-            output.append(line[0])
+        line_var = cursor.arrayvar(oracledb.STRING, 32767)  # Large enough array to hold the output lines
+        num_lines_var = cursor.var(oracledb.NUMBER)
         
-        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        while True:
+            num_lines_var.setvalue(0, 10000)  # Number of lines to fetch
+            cursor.callproc("DBMS_OUTPUT.GET_LINES", (line_var, num_lines_var))
+            num_lines = int(num_lines_var.getvalue())
+            lines = line_var.getvalue()[:num_lines]
+            output.extend(lines)
+            if num_lines < 10000:
+                break
         
         formatted_output = "<br>".join(line.strip() for line in output)
         return formatted_output
     except Exception as e:
         print(f"Erro ao gerar relatório de corpos celestes: {e}")
     finally:
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
         cursor.close()
 
 def call_relatorio_cc_otimizado(ref_id, ref_type, dist_min, dist_max):

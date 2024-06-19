@@ -1,4 +1,4 @@
-from utils.procedures import call_get_planet_info, call_monitor_planet_info, call_relatorio_estrelas
+from utils.procedures import call_get_planet_info, call_monitor_planet_info, call_relatorio_estrelas, call_relatorio_planetas, call_relatorio_sistemas
 
 def get_overview_info(usertype):
     forms = ''
@@ -135,6 +135,20 @@ def get_relatorios_info(usertype, cpi, action):
         relatorio_estrelas = call_relatorio_estrelas()
 
         info += relatorio_estrelas
+
+        info += '<br><br>'
+
+        relatorio_planetas = call_relatorio_planetas()
+
+        info += relatorio_planetas
+
+        info += '<br><br>'
+
+        relatorio_sistemas = call_relatorio_sistemas()
+
+        info += relatorio_sistemas
+
+        info += '<br><br>'
 
     return info
 
