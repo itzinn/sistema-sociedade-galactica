@@ -28,16 +28,22 @@ CREATE TABLE LOG_TABLE (
 );
 
 
--- Procedure que retorna o cargo de um líder e se ele é líder de uma facção
+-- Procedure que retorna o cargo de um líder e se ele é líder de uma facção, juntamente com nome, nação e espécie.
 CREATE OR REPLACE PROCEDURE get_leader_info (
     p_cpi IN LIDER.CPI%TYPE, -- Parâmetro de entrada que representa o CPI do líder.
     p_results OUT SYS_REFCURSOR -- Parâmetro de saída que retornará os resultados em formato de tabela.
 ) IS
     v_cargo LIDER.CARGO%TYPE; -- Variável para armazenar o cargo do líder.
     v_e_lider VARCHAR2(5); -- Variável para armazenar 'TRUE' ou 'FALSE' indicando se é líder de facção.
+    v_nome LIDER.NOME%TYPE; -- Variável para armazenar o nome do líder.
+    v_nacao LIDER.NACAO%TYPE; -- Variável para armazenar a nação do líder.
+    v_especie LIDER.ESPECIE%TYPE; -- Variável para armazenar a espécie do líder.
 BEGIN
-    -- Seleciona o cargo do líder com base no CPI fornecido.
-    SELECT CARGO INTO v_cargo FROM LIDER WHERE CPI = p_cpi;
+    -- Seleciona o cargo, nome, nação e espécie do líder com base no CPI fornecido.
+    SELECT CARGO, NOME, NACAO, ESPECIE 
+    INTO v_cargo, v_nome, v_nacao, v_especie 
+    FROM LIDER 
+    WHERE CPI = p_cpi;
 
     -- Verifica se o líder é o líder de uma facção.
     SELECT CASE WHEN EXISTS (
@@ -50,7 +56,12 @@ BEGIN
 
     -- Retorna os resultados como um cursor.
     OPEN p_results FOR
-    SELECT v_cargo AS CARGO, v_e_lider AS E_LIDER
+    SELECT 
+        v_cargo AS CARGO, 
+        v_e_lider AS E_LIDER,
+        v_nome AS NOME, 
+        v_nacao AS NACAO, 
+        v_especie AS ESPECIE
     FROM DUAL;
 
 EXCEPTION
@@ -60,6 +71,7 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Erro: ' || SQLERRM);
 END;
 /
+
 
 
 
