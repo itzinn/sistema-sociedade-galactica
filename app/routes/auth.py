@@ -60,5 +60,3 @@ def login():
             flash('Invalid credentials, please try again.', 'danger')
 
     return render_template('login.html')
-
-# Define more auth-related routes here if needed

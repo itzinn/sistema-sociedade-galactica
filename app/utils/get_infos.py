@@ -1,5 +1,5 @@
 from utils.procedures import call_get_planet_info, call_monitor_planet_info, call_relatorio_estrelas, call_relatorio_planetas, \
-    call_relatorio_sistemas, call_relatorio_corpos_celestes, call_relatorio_cc_otimizado
+    call_relatorio_sistemas, call_relatorio_corpos_celestes, call_relatorio_cc_otimizado, call_relatorio_habitantes_por_nacao
 
 def get_overview_info(usertype):
     forms = ''
@@ -105,10 +105,17 @@ def get_faction_lider_info(ehLider):
 
     return forms
 
-def get_relatorios_info(usertype, cpi, action, start_date=None, end_date=None):
+def get_relatorios_info(usertype, cpi, action, start_date=None, end_date=None, p_nome_nacao=None, p_agrupamento=None, ref_id_celestes=None, \
+                        ref_type_celestes=None, dist_min_celestes=None, dist_max_celestes=None):
     info = ''
     if usertype == 'OFICIAL':
-        pass
+        info = '<br><hr><br>'
+        info += '<h2>Relatório de Oficial</h2><br>'
+        
+        relatorio_oficial = call_relatorio_habitantes_por_nacao(p_nome_nacao, p_agrupamento)
+
+        info += relatorio_oficial
+
     elif usertype == 'COMANDANTE':
         info = '<br><hr><br>'
         info += '<h2>Relatório de Comandante</h2><br>'
@@ -155,18 +162,55 @@ def get_relatorios_info(usertype, cpi, action, start_date=None, end_date=None):
 
         info += '<br><br>'
 
-        relatorio_corpos_celestes = call_relatorio_corpos_celestes()
+        # Formulário para relatorio_corpos_celestes
+        info += f'''
+        <form action="/relatorios" method="GET">
+            <label for="ref_id_celestes">Ref ID:</label>
+            <input type="text" id="ref_id_celestes" name="ref_id_celestes">
+            <label for="ref_type_celestes">Ref Type:</label>
+            <input type="text" id="ref_type_celestes" name="ref_type_celestes">
+            <label for="dist_min_celestes">Dist Min:</label>
+            <input type="number" id="dist_min_celestes" name="dist_min_celestes">
+            <label for="dist_max_celestes">Dist Max:</label>
+            <input type="number" id="dist_max_celestes" name="dist_max_celestes">
+            <input type="submit" value="Submit">
+        </form>
+        '''
 
-        info += relatorio_corpos_celestes
+        try:
+            relatorio_corpos_celestes = call_relatorio_corpos_celestes(ref_id_celestes, ref_type_celestes, dist_min_celestes, dist_max_celestes)
 
-        info += '<br><br>'
+            info += relatorio_corpos_celestes
 
-        relatorio_cc_otimizado = call_relatorio_cc_otimizado()
+            info += '<br><br>'
+        except Exception as e:
+            info += f"<br>Um erro ocorreu: {str(e)}<br>"
 
-        info += relatorio_cc_otimizado
+        # Formulário para relatorio_cc_otimizado
+        info += f'''
+        <form action="/relatorios" method="GET">
+            <label for="ref_id_otimizado">Ref ID:</label>
+            <input type="text" id="ref_id_otimizado" name="ref_id_otimizado">
+            <label for="ref_type_otimizado">Ref Type:</label>
+            <input type="text" id="ref_type_otimizado" name="ref_type_otimizado">
+            <label for="dist_min_otimizado">Dist Min:</label>
+            <input type="number" id="dist_min_otimizado" name="dist_min_otimizado">
+            <label for="dist_max_otimizado">Dist Max:</label>
+            <input type="number" id="dist_max_otimizado" name="dist_max_otimizado">
+            <input type="submit" value="Submit">
+        </form>
+        '''
 
-        info += '<br><br>'
+        try:
+            relatorio_cc_otimizado = call_relatorio_cc_otimizado(ref_id_celestes, ref_type_celestes, dist_min_celestes, dist_max_celestes)
 
+            info += relatorio_cc_otimizado
+
+            info += '<br><br>'
+
+        except Exception as e:
+            info += f"<br>Um erro ocorreu: {str(e)}<br>"
+    
     return info
 
 def get_relatorios_lider_info(ehLider):

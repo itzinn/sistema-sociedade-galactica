@@ -344,3 +344,32 @@ def call_relatorio_cc_otimizado(ref_id, ref_type, dist_min, dist_max):
     finally:
         cursor.callproc('DBMS_OUTPUT.DISABLE')
         cursor.close()
+
+#Procedures Oficial
+def call_relatorio_habitantes_por_nacao(nome_nacao, agrupamento=None):
+    conn = db.get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('DBMS_OUTPUT.ENABLE')
+        cursor.callproc('PacoteOficial.relatorio_habitantes_por_nacao', [nome_nacao, agrupamento])
+        
+        output = []
+        line_var = cursor.arrayvar(oracledb.STRING, 32767)  # Large enough array to hold the output lines
+        num_lines_var = cursor.var(oracledb.NUMBER)
+        
+        while True:
+            num_lines_var.setvalue(0, 10000)  # Number of lines to fetch
+            cursor.callproc("DBMS_OUTPUT.GET_LINES", (line_var, num_lines_var))
+            num_lines = int(num_lines_var.getvalue())
+            lines = line_var.getvalue()[:num_lines]
+            output.extend(lines)
+            if num_lines < 10000:
+                break
+        
+        formatted_output = "<br>".join(line.strip() for line in output)
+        return formatted_output
+    except Exception as e:
+        print(f"Erro ao gerar relatório de habitantes por nação: {e}")
+    finally:
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        cursor.close()
