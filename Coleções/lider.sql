@@ -120,7 +120,7 @@ COMPOUND TRIGGER
 	END AFTER STATEMENT;
 
 END trg_update_qtd_planetas;
-
+/
 
 -- Este trigger é usado para atualizar automaticamente a quantidade de nações associadas a uma facção na tabela FACCAO toda vez que uma entrada é inserida, atualizada ou deletada na tabela NACAO_FACCAO. Quando uma operação de inserção, atualização ou exclusão ocorre, o trigger pega o nome da facção e recalcula a quantidade de nações associadas à facção e atualiza a tabela FACCAO. 
 create or replace TRIGGER trg_update_qtd_nacoes
@@ -159,7 +159,7 @@ COMPOUND TRIGGER
 	END AFTER STATEMENT;
 
 END trg_update_qtd_nacoes;
-
+/
 
 
 
