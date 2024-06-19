@@ -29,27 +29,51 @@ def get_overview_info(usertype):
         '''
     elif usertype == 'CIENTISTA':
         forms = '''
-        <form method="post" action="/criar_estrela">
-            <label for="nome_estrela">Nome da estrela:</label>
-            <input type="text" id="nome_estrela" name="nome_estrela">
-            <button type="submit">Criar Estrela</button>
-        </form>
-        <form method="post" action="/atualizar_estrela">
-            <label for="estrela_id">ID da estrela:</label>
-            <input type="text" id="estrela_id" name="estrela_id">
-            <label for="novo_nome">Novo nome da estrela:</label>
-            <input type="text" id="novo_nome" name="novo_nome">
-            <button type="submit">Atualizar Estrela</button>
-        </form>
-        <form method="post" action="/deletar_estrela">
-            <label for="estrela_id">ID da estrela:</label>
-            <input type="text" id="estrela_id" name="estrela_id">
-            <button type="submit">Deletar Estrela</button>
-        </form>
-        <form method="post" action="/listar_estrelas">
-            <button type="submit">Listar Estrelas</button>
-        </form>
-        '''
+    <form method="post" action="/criar_estrela">
+        <label for="p_id_estrela">ID da estrela:</label>
+        <input type="text" id="p_id_estrela" name="p_id_estrela">
+        <label for="p_nome">Nome da estrela:</label>
+        <input type="text" id="p_nome" name="p_nome">
+        <label for="p_classificacao">Classificação:</label>
+        <input type="text" id="p_classificacao" name="p_classificacao">
+        <label for="p_massa">Massa:</label>
+        <input type="number" id="p_massa" name="p_massa">
+        <label for="p_x">Coordenada X:</label>
+        <input type="number" id="p_x" name="p_x">
+        <label for="p_y">Coordenada Y:</label>
+        <input type="number" id="p_y" name="p_y">
+        <label for="p_z">Coordenada Z:</label>
+        <input type="number" id="p_z" name="p_z">
+        <button type="submit">Criar Estrela</button>
+    </form>
+    <form method="post" action="/ler_estrela">
+        <label for="p_id_estrela_leitura">ID da estrela:</label>
+        <input type="text" id="p_id_estrela_leitura" name="p_id_estrela_leitura">
+        <button type="submit">Ler Estrela</button>
+    </form>
+    <form method="post" action="/atualizar_estrela">
+        <label for="p_id_estrela_atualizacao">ID da estrela:</label>
+        <input type="text" id="p_id_estrela_atualizacao" name="p_id_estrela_atualizacao">
+        <label for="p_novo_nome">Novo nome da estrela:</label>
+        <input type="text" id="p_novo_nome" name="p_novo_nome">
+        <label for="p_nova_classificacao">Nova classificação:</label>
+        <input type="text" id="p_nova_classificacao" name="p_nova_classificacao">
+        <label for="p_nova_massa">Nova massa:</label>
+        <input type="number" id="p_nova_massa" name="p_nova_massa">
+        <label for="p_nova_x">Nova coordenada X:</label>
+        <input type="number" id="p_nova_x" name="p_nova_x">
+        <label for="p_nova_y">Nova coordenada Y:</label>
+        <input type="number" id="p_nova_y" name="p_nova_y">
+        <label for="p_nova_z">Nova coordenada Z:</label>
+        <input type="number" id="p_nova_z" name="p_nova_z">
+        <button type="submit">Atualizar Estrela</button>
+    </form>
+    <form method="post" action="/excluir_estrela">
+        <label for="p_id_estrela_exclusao">ID da estrela:</label>
+        <input type="text" id="p_id_estrela_exclusao" name="p_id_estrela_exclusao">
+        <button type="submit">Excluir Estrela</button>
+    </form>
+    '''
     return forms
 
 def get_faction_lider_info(ehLider):
@@ -103,7 +127,7 @@ def get_relatorios_info(usertype, cpi, action):
 
         monitor_info = call_monitor_planet_info()
         info += monitor_info
-        pass
+        
     elif usertype == 'CIENTISTA':
         info = '<br><hr><br>'
         info += '<h2>Relatório de Cientista</h2><br>'
@@ -112,7 +136,6 @@ def get_relatorios_info(usertype, cpi, action):
 
         info += relatorio_estrelas
 
-        pass
     return info
 
 def get_relatorios_lider_info(ehLider):

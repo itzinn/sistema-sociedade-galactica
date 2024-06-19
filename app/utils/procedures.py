@@ -216,7 +216,7 @@ def call_relatorio_estrelas():
         
         cursor.callproc('DBMS_OUTPUT.DISABLE')
         
-        formatted_output = "<br>".join(line.strip() for line in output)
+        formatted_output = "<br>".join(line.strip() for line in output if line)
         return formatted_output
     except Exception as e:
         print(f"Erro ao gerar relatório de estrelas: {e}")
