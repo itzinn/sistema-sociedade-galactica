@@ -14,6 +14,7 @@ CREATE OR REPLACE PACKAGE PacoteCientista AS
 	PROCEDURE relatorio_planetas;
 	PROCEDURE relatorio_sistemas;
 	PROCEDURE relatorio_corpos_celestes(ref_id IN VARCHAR2, ref_type IN VARCHAR2, dist_min IN NUMBER, dist_max IN NUMBER);
+	PROCEDURE relatorio_cc_otimizado(ref_id IN VARCHAR2, ref_type IN VARCHAR2, dist_min IN NUMBER, dist_max IN NUMBER);
 
 END PacoteCientista;
 /
