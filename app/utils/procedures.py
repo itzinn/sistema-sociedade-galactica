@@ -208,19 +208,24 @@ def call_relatorio_estrelas():
         cursor.callproc('PacoteCientista.relatorio_estrelas')
         
         output = []
+        line_var = cursor.arrayvar(oracledb.STRING, 32767)  # Large enough array to hold the output lines
+        num_lines_var = cursor.var(oracledb.NUMBER)
+        
         while True:
-            line = cursor.callproc("DBMS_OUTPUT.GET_LINE", (oracledb.STRING_VAR, 0))
-            if line[1] != 0:
+            num_lines_var.setvalue(0, 10000)  # Number of lines to fetch
+            cursor.callproc("DBMS_OUTPUT.GET_LINES", (line_var, num_lines_var))
+            num_lines = int(num_lines_var.getvalue())
+            lines = line_var.getvalue()[:num_lines]
+            output.extend(lines)
+            if num_lines < 10000:
                 break
-            output.append(line[0])
         
-        cursor.callproc('DBMS_OUTPUT.DISABLE')
-        
-        formatted_output = "<br>".join(line.strip() for line in output if line)
+        formatted_output = "<br>".join(line.strip() for line in output)
         return formatted_output
     except Exception as e:
         print(f"Erro ao gerar relatório de estrelas: {e}")
     finally:
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
         cursor.close()
 
 def call_relatorio_planetas():

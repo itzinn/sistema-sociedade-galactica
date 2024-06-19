@@ -139,10 +139,10 @@ def get_relatorios_info(usertype, cpi, action):
     return info
 
 def get_relatorios_lider_info(ehLider):
-    info = '<br><hr><br>'
-    info += '<br><h2>Relatório de Líder de Facção</h2><br>'
 
     if(ehLider == 'TRUE'):
+        info = '<br><hr><br>'
+        info += '<br><h2>Relatório de Líder de Facção</h2><br>'
         info += '..vc é lider, parabens cara'
 
     return info
