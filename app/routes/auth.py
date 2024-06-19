@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 import hashlib
 import db
 from utils.procedures import call_get_leader_info
@@ -51,13 +51,13 @@ def login():
                 session['especie'] = especie
                 print(session)
             else:
-                print('Erro ao obter o tipo de usuário.', 'danger')
+                flash('Erro ao obter o tipo de usuário.', 'danger')
                 return redirect(url_for('login'))
 
-            print('Login successful!', 'success')
+            flash('Login successful!', 'success')
             return redirect(url_for('overview.overview'))
         else:
-            print('Invalid credentials, please try again.', 'danger')
+            flash('Invalid credentials, please try again.', 'danger')
 
     return render_template('login.html')
 

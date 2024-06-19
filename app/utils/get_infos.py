@@ -85,20 +85,34 @@ def get_relatorios_info(usertype, cpi, action):
     if usertype == 'OFICIAL':
         pass
     elif usertype == 'COMANDANTE':
+        info = '<br><hr><br>'
+        info += '<h2>Relatório de Comandante</h2><br>'
         planet_info = call_get_planet_info(cpi, action)
-        print(planet_info)
+        info += planet_info
+
+        info += '<br><br>'
+        info += '''
+        <form action="/relatorios" method="GET">
+            <label for="data_inicio">Data Início:</label>
+            <input type="date" id="data_inicio" name="data_inicio">
+            <label for="data_fim">Data Fim:</label>
+            <input type="date" id="data_fim" name="data_fim">
+            <input type="submit" value="Submit">
+        </form>
+        '''
 
         monitor_info = call_monitor_planet_info()
-        print(monitor_info)
+        info += monitor_info
         pass
     elif usertype == 'CIENTISTA':
         pass
     return info
 
 def get_relatorios_lider_info(ehLider):
-    info = ''
+    info = '<br><hr><br>'
+    info += '<br><h2>Relatório de Líder de Facção</h2><br>'
 
     if(ehLider == 'TRUE'):
-        info = '..vc é lider, parabens cara'
+        info += '..vc é lider, parabens cara'
 
     return info

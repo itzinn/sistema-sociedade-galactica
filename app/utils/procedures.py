@@ -1,5 +1,6 @@
 import db
 import oracledb
+from datetime import datetime
 
 #Procedures gerais
 def call_insert_missing_leaders():
@@ -91,7 +92,7 @@ def call_get_planet_info(cpi, action):
         
         # Fetch DBMS_OUTPUT
         output = []
-        line_var = cursor.arrayvar(oracledb.STRING, 10000)  # Large enough array to hold the output lines
+        line_var = cursor.arrayvar(oracledb.STRING, 32767)  # Large enough array to hold the output lines
         num_lines_var = cursor.var(oracledb.NUMBER)
         
         while True:
@@ -102,30 +103,40 @@ def call_get_planet_info(cpi, action):
             output.extend(lines)
             if num_lines < 10000:
                 break
-            
-        return "\n".join(output)
+        
+        # Ensure lines are joined with proper line breaks for HTML
+        formatted_output = "<br>".join(line.strip() for line in output)
+        return formatted_output
     finally:
         # Ensure DBMS_OUTPUT is disabled
         cursor.callproc('DBMS_OUTPUT.DISABLE')
         cursor.close()
 
-def call_monitor_planet_info(start_date=None, end_date=None):
+def call_monitor_planet_info(start_date='2023-01-01', end_date='2024-01-01'):
     conn = db.get_db()
     cursor = conn.cursor()
-    
+
+    # Convert string dates to datetime.date objects if necessary
+    data_start = datetime.strptime(start_date, '%Y-%m-%d').date()
+    data_end = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+    # Convert dates to the format expected by Oracle (e.g., 'DD-MON-YYYY')
+    data_start_str = data_start.strftime('%d-%b-%Y').upper()
+    data_end_str = data_end.strftime('%d-%b-%Y').upper()
+
     try:
         # Enable DBMS_OUTPUT
         cursor.callproc('DBMS_OUTPUT.ENABLE')
         
         # Call the procedure with or without date parameters
         if start_date and end_date:
-            cursor.callproc('PacoteComandante.monitor_planet_info', [start_date, end_date])
+            cursor.callproc('PacoteComandante.monitor_planet_info', [data_start_str, data_end_str])
         else:
             cursor.callproc('PacoteComandante.monitor_planet_info')
         
         # Fetch DBMS_OUTPUT
         output = []
-        line_var = cursor.arrayvar(oracledb.STRING, 10000)  # Large enough array to hold the output lines
+        line_var = cursor.arrayvar(oracledb.STRING, 32767)  # Large enough array to hold the output lines
         num_lines_var = cursor.var(oracledb.NUMBER)
         
         while True:
@@ -136,8 +147,10 @@ def call_monitor_planet_info(start_date=None, end_date=None):
             output.extend(lines)
             if num_lines < 10000:
                 break
-            
-        return "\n".join(output)
+        
+        # Ensure lines are joined with proper line breaks for HTML
+        formatted_output = "<br>".join(line.strip() for line in output)
+        return formatted_output
     finally:
         # Ensure DBMS_OUTPUT is disabled
         cursor.callproc('DBMS_OUTPUT.DISABLE')

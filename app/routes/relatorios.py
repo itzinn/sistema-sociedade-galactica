@@ -15,12 +15,10 @@ def relatorios():
     action = 'DOMINIO'
     ehLider = session['e_lider']
 
-    #relatorios_info = get_relatorios_info(usertype,cpi,action)
-    #relatorios_lider_info = get_relatorios_lider_info(ehLider)
+    relatorios_info = get_relatorios_info(usertype,cpi,action)
+    relatorios_lider_info = get_relatorios_lider_info(ehLider)
 
-    #return render_template('relatorios.html', relatorios_info=relatorios_info, relatorios_lider_info=relatorios_lider_info)
-
-    return render_template('relatorios.html')
+    return render_template('relatorios.html', relatorios_info=relatorios_info, relatorios_lider_info=relatorios_lider_info)
 
 
 # Define more relatorios-related routes here if needed

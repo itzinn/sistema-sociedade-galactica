@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for
+from flask import Blueprint, request, redirect, url_for, flash
 from utils.procedures import (
     call_criar_estrela,
     call_atualizar_estrela,
@@ -10,19 +10,20 @@ cientista_bp = Blueprint('cientista', __name__)
 
 @cientista_bp.route('/criar_estrela', methods=['POST'])
 def criar_estrela():
-    id_estrela = request.form['id_estrela']
-    nome = request.form['nome']
-    classificacao = request.form['classificacao']
-    massa = request.form['massa']
-    x = request.form['x']
-    y = request.form['y']
-    z = request.form['z']
-
     try:
+        id_estrela = request.form['id_estrela']
+        nome = request.form['nome']
+        classificacao = request.form['classificacao']
+        massa = request.form['massa']
+        x = request.form['x']
+        y = request.form['y']
+        z = request.form['z']
+
+    
         call_criar_estrela(id_estrela, nome, classificacao, massa, x, y, z)
-        print('Estrela criada com sucesso!', 'success')
+        flash('Estrela criada com sucesso!', 'success')
     except Exception as e:
-        print(f'Erro ao criar estrela: {e}', 'danger')
+        flash(f'Erro ao criar estrela: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
 
@@ -38,9 +39,9 @@ def atualizar_estrela():
 
     try:
         call_atualizar_estrela(id_estrela, nome, classificacao, massa, x, y, z)
-        print('Estrela atualizada com sucesso!', 'success')
+        flash('Estrela atualizada com sucesso!', 'success')
     except Exception as e:
-        print(f'Erro ao atualizar estrela: {e}', 'danger')
+        flash(f'Erro ao atualizar estrela: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
 
@@ -50,9 +51,9 @@ def deletar_estrela():
 
     try:
         call_deletar_estrela(id_estrela)
-        print('Estrela deletada com sucesso!', 'success')
+        flash('Estrela deletada com sucesso!', 'success')
     except Exception as e:
-        print(f'Erro ao deletar estrela: {e}', 'danger')
+        flash(f'Erro ao deletar estrela: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
 
@@ -62,8 +63,8 @@ def listar_estrelas():
         estrelas = call_listar_estrelas()
         print(estrelas)
         
-        print('Lista de estrelas atualizada!', 'success')
+        flash('Lista de estrelas atualizada!', 'success')
     except Exception as e:
-        print(f'Erro ao listar estrelas: {e}', 'danger')
+        flash(f'Erro ao listar estrelas: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
