@@ -1,20 +1,40 @@
---Não precisa chamar na aplicação nada destes arquivos!
+--Não precisa chamar na aplicação estes procedures
 
-INSERT INTO FEDERACAO (NOME, DATA_FUND) VALUES ('Federação A', TO_DATE('2020-01-01', 'YYYY-MM-DD'));
-INSERT INTO NACAO (NOME, QTD_PLANETAS, FEDERACAO) VALUES ('Nação A', 3, 'Federação A');
-INSERT INTO PLANETA (ID_ASTRO, MASSA, RAIO, CLASSIFICACAO) VALUES ('Planeta A', 5.972, 6371, 'Classe M');
-INSERT INTO ESPECIE (NOME, PLANETA_OR, INTELIGENTE) VALUES ('Espécie A', 'Planeta A', 'V');
-INSERT INTO LIDER (CPI, NOME, CARGO, NACAO, ESPECIE) VALUES ('123.123.123-10', 'Líder A', 'COMANDANTE', 'Nação A', 'Espécie A');
-INSERT INTO FACCAO (NOME, LIDER, IDEOLOGIA, QTD_NACOES) VALUES ('Facção A', '123.123.123-10', 'PROGRESSITA', 1);
-INSERT INTO NACAO_FACCAO (NACAO, FACCAO) VALUES ('Nação A', 'Facção A');
-INSERT INTO DOMINANCIA (PLANETA, NACAO, DATA_INI) VALUES ('Planeta A', 'Nação A', TO_DATE('2020-01-01', 'YYYY-MM-DD'));
-INSERT INTO COMUNIDADE (ESPECIE, NOME, QTD_HABITANTES) VALUES ('Espécie A', 'Comunidade A', 1000);
-INSERT INTO HABITACAO (PLANETA, ESPECIE, COMUNIDADE, DATA_INI) VALUES ('Planeta A', 'Espécie A', 'Comunidade A', TO_DATE('0009-09-09', 'YYYY-MM-DD'));
+--Arquivo para ser rodado antes no SQL developer. Contem a criação da tabela user e seus respectivos triggers. Tem o procedimento para cadastrar lideres que não foram cadastrados
 
 
+-- Tabela de usuários
+CREATE TABLE USERS (
+	UserID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	Lider CHAR(14 BYTE) UNIQUE,
+	Password VARCHAR2(32),
+	CONSTRAINT fk_lider FOREIGN KEY (Lider) REFERENCES LIDER(CPI)
+);
 
 
+-- Trigger para conversão de senhas através de md5
+CREATE OR REPLACE TRIGGER trg_users_password
+BEFORE INSERT OR UPDATE ON USERS
+FOR EACH ROW
+DECLARE
+	md5_val USERS.Password%type;
+BEGIN
+	SELECT DBMS_OBFUSCATION_TOOLKIT.md5 (input => UTL_RAW.cast_to_raw(:NEW.Password)) into md5_val FROM DUAL;
+	:NEW.Password := md5_val;
+END;
+/
 
+	
+-- Tabela de log de atividades dos usuários
+CREATE TABLE LOG_TABLE (
+	Userid NUMBER,
+	log_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	message VARCHAR2(4000),
+	CONSTRAINT fk_log_user FOREIGN KEY (Userid) REFERENCES USERS(Userid)
+);
+
+
+-- Procudere para inserir lideres que não estão na tabela de user e coloca uma senha padrão 'admin'
 CREATE OR REPLACE PROCEDURE insert_missing_leaders AS
 BEGIN
 	FOR r IN (
@@ -28,5 +48,11 @@ BEGIN
 	END LOOP;
 
 	COMMIT;
+END;
+/
+
+-- Chamada para o procedimento que insere os líderes
+BEGIN
+	insert_missing_leaders;
 END;
 /
