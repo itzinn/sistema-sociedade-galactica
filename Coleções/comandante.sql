@@ -2,6 +2,7 @@
 --  COMANDANTE  --
 ------------------
 
+--Este arquivo contem o pacote comandante com todos seus procedimentos e relatirios.
 
 CREATE OR REPLACE PACKAGE PacoteComandante AS
 
@@ -20,7 +21,7 @@ END PacoteComandante;
 
 CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 
-	--Função para saber a nação do comandante
+	--Função que retorna a nação do comandante
 	FUNCTION nacao_de_comandante(p_cpi LIDER.CPI%TYPE) RETURN VARCHAR2 IS
 		v_nome_nacao LIDER.NACAO%TYPE;
 	BEGIN 
@@ -34,14 +35,14 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 			RAISE;
 	END nacao_de_comandante;
 
-
+	-- O procedimento incluir_federacao associa uma nação liderada por um comandante específico a uma federação fornecida. Primeiramente, ele obtém o nome da nação associada ao comandante e verifica se o nome da federação não é nulo. Depois verifica se a federação já existe na tabela FEDERACAO. Se a federação existir e o nome da nação não for nulo, o procedimento atualiza a tabela NACAO, associando a nação à nova federação. Caso ocorra algum erro durante essas verificações o procedimento lança uma exceção apropriada e exibe uma mensagem de erro. Se todas as condições forem satisfeitas, a atualização é confirmada com um COMMIT.
 	PROCEDURE incluir_federacao(cpi IN CHAR, nome_federacao IN VARCHAR2) IS
 
 		v_nome_nacao NACAO.NOME%TYPE;
 		v_nome_federacao FEDERACAO.NOME%TYPE;
 		v_check_federacao FEDERACAO.NOME%TYPE;
 
-
+		não_nação EXCEPTION;
 		valor_null EXCEPTION;
 		federação_existe EXCEPTION;
 
@@ -50,7 +51,7 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 		v_nome_federacao := nome_federacao;
 
 		IF v_nome_nacao IS NULL THEN
-			RETURN;
+			RAISE não_nação;
 		END IF;
 
 		IF v_nome_federacao IS NULL THEN
@@ -67,6 +68,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 		COMMIT;
 
 	EXCEPTION
+		WHEN não_nação THEN
+			DBMS_OUTPUT.PUT_LINE('Não foi encontrado comandante');
 		WHEN valor_null THEN 
 			DBMS_OUTPUT.PUT_LINE('Nome de federação nulo');
 		WHEN OTHERS THEN
@@ -74,14 +77,14 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 			DBMS_OUTPUT.PUT_LINE('Erro ao criar nova federação e nação: ' || SQLERRM);
 	END incluir_federacao;
 
-
+	-- O procedimento excluir_federacao tem como objetivo desassociar uma nação liderada por um comandante específico de uma federação fornecida. Primeiramente, ele obtém o nome da nação associada ao comandante e verifica se o nome da federação não é nulo. Em seguida, verifica se a federação existe na tabela FEDERACAO. Se a federação existir e o nome da nação não for nulo, o procedimento atualiza a tabela NACAO, removendo a associação da nação à federação, definindo o campo FEDERACAO como NULL. Caso ocorra algum erro durante essas verificações, como o comandante não estar associado a nenhuma nação, o nome da federação ser nulo ou a federação não existir, o procedimento lança uma exceção apropriada e exibe uma mensagem de erro. Se todas as condições forem satisfeitas, a atualização é confirmada com um COMMIT. Em caso de erro durante o processo, uma mensagem de erro é exibida e a transação é revertida com um ROLLBACK para garantir a integridade dos dados. Esta implementação assegura que as nações sejam corretamente desassociadas das federações quando necessário, mantendo a consistência e a integridade do banco de dados.
 	PROCEDURE excluir_federacao(cpi IN CHAR, nome_federacao IN VARCHAR2) IS
 
 		v_nome_nacao NACAO.NOME%TYPE;
 		v_nome_federacao FEDERACAO.NOME%TYPE;
 		v_check_federacao FEDERACAO.NOME%TYPE;
 
-
+		não_nação EXCEPTION;
 		valor_null EXCEPTION;
 		federação_existe EXCEPTION;
 
@@ -90,7 +93,7 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 		v_nome_federacao := nome_federacao;
 
 		IF v_nome_nacao IS NULL THEN
-			RETURN;
+			RAISE não_nação;
 		END IF;
 
 		IF v_nome_federacao IS NULL THEN
@@ -107,6 +110,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 		COMMIT;
 
 	EXCEPTION
+		WHEN não_nação THEN
+			DBMS_OUTPUT.PUT_LINE('Não foi encontrado comandante');
 		WHEN valor_null THEN 
 			DBMS_OUTPUT.PUT_LINE('Nome de federação nulo');
 		WHEN OTHERS THEN
@@ -123,12 +128,13 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 		chave_violada EXCEPTION;
 		PRAGMA EXCEPTION_INIT(chave_violada, -00001);
 		valor_null EXCEPTION;
+		não_nação EXCEPTION;
 
 	BEGIN
 		v_nome_nacao := nacao_de_comandante(cpi);
 		v_nome_federacao := nome_federacao;
 		IF v_nome_nacao IS NULL THEN
-			RETURN;
+			RAISE não_nação;
 		END IF;
 
 		IF v_nome_federacao IS NULL THEN
@@ -141,6 +147,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 		COMMIT;
 
 		EXCEPTION
+			WHEN não_nação THEN
+				DBMS_OUTPUT.PUT_LINE('Não foi encontrado comandante');
 			WHEN valor_null THEN 
 				DBMS_OUTPUT.PUT_LINE('Nome de federação nulo');
 			WHEN chave_violada THEN
@@ -160,14 +168,14 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 		v_check_dominancia PLANETA.ID_ASTRO%TYPE;
 
 		planeta_dominado EXCEPTION;
+		não_nação EXCEPTION;
 
 	BEGIN
 		v_nome_nacao := nacao_de_comandante(cpi);
 		v_nome_planeta := nome_planeta;
 
 		IF v_nome_nacao IS NULL THEN
-			DBMS_OUTPUT.PUT_LINE('Usuário não é comandante de nenhuma nação.');
-			RETURN;
+			RAISE não_naçãO;
 		END IF;
 
 
@@ -185,6 +193,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 		COMMIT;
 
 	EXCEPTION
+		WHEN não_nação THEN
+			DBMS_OUTPUT.PUT_LINE('Usuário não é comandante de nenhuma nação.');
 		WHEN planeta_dominado THEN
 			DBMS_OUTPUT.PUT_LINE('Erro: O planeta ' || nome_planeta || ' já está sendo dominado por outra nação.');
 		WHEN OTHERS THEN

@@ -11,6 +11,7 @@ CREATE OR REPLACE PACKAGE PacoteCientista AS
 	PROCEDURE relatorio_estrelas;
 	PROCEDURE relatorio_planetas;
 	PROCEDURE relatorio_sistemas;
+	PROCEDURE relatorio_corpos_celestes(ref_id IN VARCHAR2, ref_type IN VARCHAR2, dist_min IN NUMBER, dist_max IN NUMBER);
 
 END PacoteCientista;
 /
@@ -163,6 +164,75 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 		  dbms_output.put_line('Erro ao gerar relatório de sistemas: ' || SQLERRM);
 	END relatorio_sistemas;
 
+	PROCEDURE relatorio_corpos_celestes(ref_id IN VARCHAR2, ref_type IN VARCHAR2, dist_min IN NUMBER, dist_max IN NUMBER) IS
+	ref_x NUMBER;
+	ref_y NUMBER;
+	ref_z NUMBER;
+  	BEGIN
+		-- Obter coordenadas da estrela ou sistema de referência
+		IF ref_type = 'ESTRELA' THEN
+		BEGIN
+			SELECT e.X, e.Y, e.Z
+			INTO ref_x, ref_y, ref_z
+			FROM ESTRELA e
+			WHERE e.ID_ESTRELA = ref_id;
+		EXCEPTION
+			WHEN NO_DATA_FOUND THEN
+			dbms_output.put_line('Estrela de referência não encontrada.');
+			RETURN;
+			WHEN TOO_MANY_ROWS THEN
+			dbms_output.put_line('Erro: múltiplas estrelas com o mesmo ID de referência.');
+			RETURN;
+			WHEN OTHERS THEN
+			dbms_output.put_line('Erro ao obter coordenadas da estrela de referência: ' || SQLERRM);
+			RETURN;
+		END;
+		ELSIF ref_type = 'SISTEMA' THEN
+		BEGIN
+			SELECT e.X, e.Y, e.Z
+			INTO ref_x, ref_y, ref_z
+			FROM ESTRELA e
+			JOIN SISTEMA s ON e.ID_ESTRELA = s.ESTRELA
+			WHERE s.NOME = ref_id;
+		EXCEPTION
+			WHEN NO_DATA_FOUND THEN
+			dbms_output.put_line('Sistema de referência não encontrado.');
+			RETURN;
+			WHEN TOO_MANY_ROWS THEN
+			dbms_output.put_line('Erro: múltiplas entradas com o mesmo ID de referência.');
+			RETURN;
+			WHEN OTHERS THEN
+			dbms_output.put_line('Erro ao obter coordenadas do sistema de referência: ' || SQLERRM);
+			RETURN;
+		END;
+		ELSE
+		dbms_output.put_line('Tipo de referência inválido. Deve ser "ESTRELA" ou "SISTEMA".');
+		RETURN;
+		END IF;
+
+		-- Consultar corpos celestes dentro do intervalo de distâncias
+		FOR r IN (
+		SELECT 'Estrela' AS TIPO, e.ID_ESTRELA AS ID, e.NOME, e.CLASSIFICACAO, e.MASSA, e.X, e.Y, e.Z,
+				SQRT(POWER(e.X - ref_x, 2) + POWER(e.Y - ref_y, 2) + POWER(e.Z - ref_z, 2)) AS DISTANCIA
+		FROM ESTRELA e
+		WHERE SQRT(POWER(e.X - ref_x, 2) + POWER(e.Y - ref_y, 2) + POWER(e.Z - ref_z, 2)) BETWEEN dist_min AND dist_max
+		UNION ALL
+		SELECT 'Planeta' AS TIPO, p.ID_ASTRO AS ID, NULL AS NOME, p.CLASSIFICACAO, p.MASSA, op.X, op.Y, op.Z,
+				SQRT(POWER(op.X - ref_x, 2) + POWER(op.Y - ref_y, 2) + POWER(op.Z - ref_z, 2)) + op.DIST_MIN AS DISTANCIA
+		FROM PLANETA p
+		JOIN (SELECT op.PLANETA, e.X, e.Y, e.Z, op.DIST_MIN
+				FROM ORBITA_PLANETA op
+				JOIN ESTRELA e ON op.ESTRELA = e.ID_ESTRELA) op
+		ON p.ID_ASTRO = op.PLANETA
+		WHERE (SQRT(POWER(op.X - ref_x, 2) + POWER(op.Y - ref_y, 2) + POWER(op.Z - ref_z, 2)) + op.DIST_MIN) BETWEEN dist_min AND dist_max
+		ORDER BY DISTANCIA
+		) LOOP
+		dbms_output.put_line('Tipo: ' || r.TIPO || ', ID: ' || r.ID || ', Nome: ' || r.NOME || ', Classificação: ' || r.CLASSIFICACAO || ', Massa: ' || TO_CHAR(r.MASSA, 'FM0.099999') || ', Coordenadas: (' || TO_CHAR(r.X, 'FM0.099999') || ', ' || TO_CHAR(r.Y, 'FM0.099999') || ', ' || TO_CHAR(r.Z, 'FM0.099999') || '), Distância: ' || TO_CHAR(r.DISTANCIA, 'FM0.099999'));
+		END LOOP;
+	EXCEPTION
+		WHEN OTHERS THEN
+		  dbms_output.put_line('Erro ao gerar relatório de corpos celestes: ' || SQLERRM);
+	END relatorio_corpos_celestes;
 
 END PacoteCientista;
 /
