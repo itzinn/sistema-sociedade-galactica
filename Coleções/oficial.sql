@@ -13,6 +13,22 @@ END PacoteOficial;
 CREATE OR REPLACE PACKAGE BODY PacoteOficial AS
 
   PROCEDURE relatorio_habitantes_por_nacao(p_nome_nacao IN VARCHAR2, p_agrupamento IN VARCHAR2 DEFAULT NULL) IS
+	/*
+		Relatório principal do oficial
+			ele deseja monitorar o crescimento populacional de sua nação
+		Parâmetros:
+			p_nome_nacao: Nome da nação do oficial em questão
+			p_argumento:  Informação pela qual o oficial deseja agrupar informações da população
+				Opções:
+					PLANETA: mostra o número de habitantes por planeta da nação
+					ESPECIE: mostra o número de habitantes de cada espécie da nação
+					FACCAO:  mostra o número de habitantes por facção da nação
+					SISTEMA: mostra o número de habitantes por sistema da nação
+					Outro ou nada: mostra todas as informações de habitações da nação espalhadas pelo universo
+	
+			Além de agrupar pela informação escolhida, os reultados também são ordenados em função deles
+			No caso default, as informações são ordenadas por planeta
+	*/
   BEGIN
 	CASE p_agrupamento
 	  WHEN 'PLANETA' THEN

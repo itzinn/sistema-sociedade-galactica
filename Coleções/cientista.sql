@@ -14,6 +14,7 @@ CREATE OR REPLACE PACKAGE PacoteCientista AS
 	PROCEDURE relatorio_planetas;
 	PROCEDURE relatorio_sistemas;
 	PROCEDURE relatorio_corpos_celestes(ref_id IN VARCHAR2, ref_type IN VARCHAR2, dist_min IN NUMBER, dist_max IN NUMBER);
+	PROCEDURE relatorio_cc_otimizado(ref_id IN VARCHAR2, ref_type IN VARCHAR2, dist_min IN NUMBER, dist_max IN NUMBER);
 
 END PacoteCientista;
 /
@@ -175,6 +176,14 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 
 
 
+
+
+
+	/*
+												=====================
+		Relatório de corpos celestes que distam uma estrela/sistema selecionado		=+= VERSÃO BÁSICA =+=
+												=====================
+	*/
 	PROCEDURE relatorio_corpos_celestes(ref_id IN VARCHAR2, ref_type IN VARCHAR2, dist_min IN NUMBER, dist_max IN NUMBER) IS
 	/*
 		Esse relatório é pensado em retornar todos os corpos celestes (estrelas e planetas) que estão em uma faixa de distância deteminada de uma estrela ou sistema.
@@ -183,6 +192,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 			ref_type: tipo definido como ESTRELA ou SISTEMA
 			dist_min: um número
 			dist_max: um número
+
+		A forma de cálculo de distâncias é um filtro na busca, que calcula a distância em cada consulta. Mas detalhes abaixo.
 	*/
 	ref_x NUMBER;
 	ref_y NUMBER;
@@ -257,6 +268,109 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 		WHEN OTHERS THEN
 		  dbms_output.put_line('Erro ao gerar relatório de corpos celestes: ' || SQLERRM);
 	END relatorio_corpos_celestes;
+
+
+
+
+
+
+	/*
+												========================
+		Relatório de corpos celestes que distam uma estrela/sistema selecionado		=+= VERSÃO OTIMIZADA =+=
+												========================
+	*/
+	PROCEDURE relatorio_cc_otimizado(ref_id IN VARCHAR2, ref_type IN VARCHAR2, dist_min IN NUMBER, dist_max IN NUMBER) IS
+	/*
+		Esse relatório é pensado em retornar todos os corpos celestes (estrelas e planetas) que estão em uma faixa de distância deteminada de uma estrela ou sistema.
+		Parâmetros:
+			ref_id	: id de uma estrela ou nome de um sistema
+			ref_type: tipo definido como ESTRELA ou SISTEMA
+			dist_min: um número
+			dist_max: um número
+
+		As distâncias não são calculadas nas consultas, desta vez. Elas veêm de uma consulta à tabela DISTANCIAS_ESTRELAS.
+	*/
+		ref_x NUMBER;
+		ref_y NUMBER;
+		ref_z NUMBER;
+	  BEGIN
+		-- Obter coordenadas da estrela ou sistema de referência
+		IF ref_type = 'ESTRELA' THEN
+		  BEGIN
+			SELECT e.X, e.Y, e.Z
+			INTO ref_x, ref_y, ref_z
+			FROM ESTRELA e
+			WHERE e.ID_ESTRELA = ref_id;
+		  EXCEPTION
+			WHEN NO_DATA_FOUND THEN
+			  dbms_output.put_line('Estrela de referência não encontrada.');
+			  RETURN;
+			WHEN TOO_MANY_ROWS THEN
+			  dbms_output.put_line('Erro: múltiplas estrelas com o mesmo ID de referência.');
+			  RETURN;
+			WHEN OTHERS THEN
+			  dbms_output.put_line('Erro ao obter coordenadas da estrela de referência: ' || SQLERRM);
+			  RETURN;
+		  END;
+
+		-- Caso sistema, pegar a estrela dele
+		ELSIF ref_type = 'SISTEMA' THEN
+		  BEGIN
+			SELECT e.X, e.Y, e.Z
+			INTO ref_x, ref_y, ref_z
+			FROM ESTRELA e
+			JOIN SISTEMA s ON e.ID_ESTRELA = s.ESTRELA
+			WHERE s.NOME = ref_id;
+		  EXCEPTION
+			WHEN NO_DATA_FOUND THEN
+			  dbms_output.put_line('Sistema de referência não encontrado.');
+			  RETURN;
+			WHEN TOO_MANY_ROWS THEN
+			  dbms_output.put_line('Erro: múltiplas entradas com o mesmo ID de referência.');
+			  RETURN;
+			WHEN OTHERS THEN
+			  dbms_output.put_line('Erro ao obter coordenadas do sistema de referência: ' || SQLERRM);
+			  RETURN;
+		  END;
+		ELSE
+		  dbms_output.put_line('Tipo de referência inválido. Deve ser "ESTRELA" ou "SISTEMA".');
+		  RETURN;
+		END IF;
+	
+		-- Consultar corpos celestes dentro do intervalo de distâncias usando as informações da tabela DISTANCIAS_ESTRELAS
+		-- Para estrelas, a mera distância basta
+		-- Para planetas, somamos a distância entre a estrela referência a e orbitada por ele com sua distância mínima à ela
+		FOR r IN (
+		  SELECT 'Estrela' AS TIPO, e.ID_ESTRELA AS ID, e.NOME, e.CLASSIFICACAO, e.MASSA, e.X, e.Y, e.Z,
+				 d.Distancia AS DISTANCIA
+		  FROM ESTRELA e
+		  JOIN DISTANCIAS_ESTRELAS d ON (d.Estrela1_ID = ref_id AND d.Estrela2_ID = e.ID_ESTRELA)
+									OR (d.Estrela1_ID = e.ID_ESTRELA AND d.Estrela2_ID = ref_id)
+		  WHERE d.Distancia BETWEEN dist_min AND dist_max
+		  UNION ALL
+		  SELECT 'Planeta' AS TIPO, p.ID_ASTRO AS ID, NULL AS NOME, p.CLASSIFICACAO, p.MASSA, op.X, op.Y, op.Z,
+				 d.Distancia + op.DIST_MIN AS DISTANCIA
+		  FROM PLANETA p
+		  JOIN (SELECT op.PLANETA, e.X, e.Y, e.Z, op.DIST_MIN, op.ESTRELA
+				FROM ORBITA_PLANETA op
+				JOIN ESTRELA e ON op.ESTRELA = e.ID_ESTRELA) op
+		  ON p.ID_ASTRO = op.PLANETA
+		  JOIN DISTANCIAS_ESTRELAS d ON (d.Estrela1_ID = ref_id AND d.Estrela2_ID = op.ESTRELA)
+									OR (d.Estrela1_ID = op.ESTRELA AND d.Estrela2_ID = ref_id)
+		  WHERE (d.Distancia + op.DIST_MIN) BETWEEN dist_min AND dist_max
+		  ORDER BY DISTANCIA
+		) LOOP
+		  dbms_output.put_line('Tipo: ' || r.TIPO || ', ID: ' || r.ID || ', Nome: ' || r.NOME || ', Classificação: ' || r.CLASSIFICACAO || 
+							   ', Massa: ' || TO_CHAR(r.MASSA, 'FM0.000000') || 
+							   ', Coordenadas: (' || TO_CHAR(r.X, 'FM9999990.000000') || ', ' || 
+													TO_CHAR(r.Y, 'FM9999990.000000') || ', ' || 
+													TO_CHAR(r.Z, 'FM9999990.000000') || 
+							   '), Distância: ' || TO_CHAR(r.DISTANCIA, 'FM9999990.000000'));
+		END LOOP;
+	EXCEPTION
+		WHEN OTHERS THEN
+		  dbms_output.put_line('Erro ao gerar relatório de corpos celestes: ' || SQLERRM);
+	END relatorio_cc_otimizado;
 
 END PacoteCientista;
 /
