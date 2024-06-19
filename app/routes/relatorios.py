@@ -29,7 +29,6 @@ def relatorios():
     p_nome_nacao = request.args.get('p_nome_nacao')
     p_agrupamento = request.args.get('p_agrupamento')
 
-
     # Se os parâmetros não foram fornecidos na URL
     if data_inicio is None:
         data_inicio = '2023-01-01'

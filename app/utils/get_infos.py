@@ -117,7 +117,12 @@ def get_relatorios_info(usertype, cpi, action, start_date=None, end_date=None, p
             <label for="p_nome_nacao">Nome da Nação:</label>
             <input type="text" id="p_nome_nacao" name="p_nome_nacao">
             <label for="p_agrupamento">Agrupamento:</label>
-            <input type="text" id="p_agrupamento" name="p_agrupamento">
+            <select id="p_agrupamento" name="p_agrupamento">
+                <option value="PLANETA">PLANETA</option>
+                <option value="ESPECIE">ESPECIE</option>
+                <option value="FACCAO">FACCAO</option>
+                <option value="SISTEMA">SISTEMA</option>
+            </select>
             <input type="submit" value="Submit">
         </form>
         '''
