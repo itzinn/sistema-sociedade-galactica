@@ -1,27 +1,30 @@
-DECLARE
-    c SYS_REFCURSOR; -- Declaração do cursor para armazenar os resultados.
-    v_cargo LIDER.CARGO%TYPE; -- Variável para armazenar o cargo.
-    v_e_lider VARCHAR2(5); -- Variável para armazenar se é líder de facção.
-    v_nome LIDER.NOME%TYPE; -- Variável para armazenar o nome do líder.
-    v_nacao LIDER.NACAO%TYPE; -- Variável para armazenar a nação do líder.
-    v_especie LIDER.ESPECIE%TYPE; -- Variável para armazenar a espécie do líder.
-BEGIN
-    -- Chama o procedimento para obter as informações do líder com o CPI fornecido.
-    get_leader_info('123.456.789-10', c); -- Substitua pelo CPI do líder que deseja testar.
+import cx_Oracle
 
-    -- Loop para ler os resultados do cursor.
-    LOOP
-        FETCH c INTO v_cargo, v_e_lider, v_nome, v_nacao, v_especie; -- Recupera os valores do cursor para as variáveis.
-        EXIT WHEN c%NOTFOUND; -- Sai do loop quando todos os registros forem processados.
+# Configurações de conexão ao banco de dados Oracle
+dsn = cx_Oracle.makedsn("hostname", "port", sid="service_name")  # Configurar com os detalhes do seu banco de dados
+connection = cx_Oracle.connect(user="your_username", password="your_password", dsn=dsn)
 
-        -- Exibe os resultados.
-        DBMS_OUTPUT.PUT_LINE('CARGO: ' || v_cargo || ', É LIDER: ' || v_e_lider || ', NOME: ' || v_nome || ', NAÇÃO: ' || v_nacao || ', ESPÉCIE: ' || v_especie);
-    END LOOP;
+try:
+    # Criação de um cursor
+    cursor = connection.cursor()
+    
+    # Parâmetro de saída do tipo SYS_REFCURSOR
+    output_cursor = cursor.var(cx_Oracle.CURSOR)
 
-    CLOSE c; -- Fecha o cursor.
-END;
-/
+    # Chamada ao procedimento com o CPI do líder e o cursor de saída
+    cpi_lider = '123.456.789-10'  # Substitua pelo CPI do líder que deseja testar
+    cursor.callproc("get_leader_info", [cpi_lider, output_cursor])
 
+    # Processar os resultados do cursor de saída
+    result_cursor = output_cursor.getvalue()
+    for row in result_cursor:
+        # Desempacota as colunas retornadas
+        cargo, e_lider, nome, nacao, especie = row
+        print(f"CARGO: {cargo}, É LIDER: {e_lider}, NOME: {nome}, NAÇÃO: {nacao}, ESPÉCIE: {especie}")
+finally:
+    # Fechar o cursor e a conexão
+    cursor.close()
+    connection.close()
 
 
 
