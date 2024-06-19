@@ -3,6 +3,8 @@
 -- LIDER FACCAO --
 ------------------
 
+--Este arquivo contem o pacote lider com todos seus procedimentos e relatirios. Possui tambem as coleções usadas e triggers usado pelos pacotes.
+
 --Coleções
 CREATE TYPE nf_row_type AS OBJECT (
 	nacao VARCHAR2(15),
