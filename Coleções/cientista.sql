@@ -2,6 +2,8 @@
 -- CIENTISTA --
 ---------------
 
+--Este arquivo contem o pacote cientista com todos seus procedimentos e relatirios.
+
 CREATE OR REPLACE PACKAGE PacoteCientista AS
 	
 	PROCEDURE criar_estrela(p_id_estrela IN VARCHAR2, p_nome IN VARCHAR2, p_classificacao IN VARCHAR2, p_massa IN NUMBER, p_x IN NUMBER, p_y IN NUMBER, p_z IN NUMBER);
@@ -17,7 +19,8 @@ END PacoteCientista;
 /
 
 CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
-	
+
+	---- O procedimento criar_estrela tem como objetivo inserir um novo registro de estrela na tabela ESTRELA com os detalhes fornecidos como parâmetros. Se a inserção for bem-sucedida, a operação é confirmada com um COMMIT e uma mensagem de sucesso é exibida. 
 	PROCEDURE criar_estrela(p_id_estrela IN VARCHAR2, p_nome IN VARCHAR2, p_classificacao IN VARCHAR2, p_massa IN NUMBER, p_x IN NUMBER, p_y IN NUMBER, p_z IN NUMBER) IS
 		e_estrela_existente EXCEPTION;
 		PRAGMA EXCEPTION_INIT(e_estrela_existente, -00001); -- ORA-00001: unique constraint violated
@@ -35,7 +38,7 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 		  dbms_output.put_line('Erro ao criar estrela: ' || SQLERRM);
 	END criar_estrela;
 
-
+	--O procedimento ler_estrela tem como objetivo ler e exibir as informações detalhadas de uma estrela específica identificada pelo seu ID_ESTRELA. Caso nenhuma estrela seja encontrada com o ID_ESTRELA fornecido, uma exceção NO_DATA_FOUND é capturada, e uma mensagem informando que a estrela não foi encontrada é exibida.
 	PROCEDURE ler_estrela(p_id_estrela IN VARCHAR2) IS
 		v_nome ESTRELA.NOME%TYPE;
 		v_classificacao ESTRELA.CLASSIFICACAO%TYPE;
@@ -55,14 +58,15 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 		dbms_output.put_line('Massa: ' || v_massa);
 		dbms_output.put_line('Coordenadas: (' || v_x || ', ' || v_y || ', ' || v_z || ')');
 
-  EXCEPTION
-	WHEN NO_DATA_FOUND THEN
-	  dbms_output.put_line('Estrela não encontrada.');
-	WHEN OTHERS THEN
-	  dbms_output.put_line('Erro ao ler estrela: ' || SQLERRM);
-  END ler_estrela;
+  	EXCEPTION
+		WHEN NO_DATA_FOUND THEN
+	  		dbms_output.put_line('Estrela não encontrada.');
+		WHEN OTHERS THEN
+	  		dbms_output.put_line('Erro ao ler estrela: ' || SQLERRM);
+  	END ler_estrela;
 
 
+	-- O procedimento atualizar_estrela tem como objetivo atualizar as informações de uma estrela existente na tabela ESTRELA com os detalhes fornecidos como parâmetros. ele verifica se alguma linha foi afetada usando SQL%ROWCOUNT. Se nenhuma linha foi atualizada, uma exceção personalizada e_estrela_nao_encontrada é lançada, indicando que a estrela com o ID fornecido não foi encontrada.
 	PROCEDURE atualizar_estrela(p_id_estrela IN VARCHAR2, p_nome IN VARCHAR2, p_classificacao IN VARCHAR2, p_massa IN NUMBER, p_x IN NUMBER, p_y IN NUMBER, p_z IN NUMBER) IS
 		e_estrela_nao_encontrada EXCEPTION;
 		PRAGMA EXCEPTION_INIT(e_estrela_nao_encontrada, -20001);
@@ -83,6 +87,7 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 	END atualizar_estrela;
 
 
+	--O procedimento excluir_estrela tem como objetivo remover uma estrela da tabela ESTRELA com base no ID_ESTRELA fornecido. Ele tenta deletar a estrela correspondente ao ID fornecido. Após a tentativa de exclusão, verifica se alguma linha foi afetada usando SQL%ROWCOUNT. Se nenhuma linha foi deletada, uma exceção personalizada e_estrela_nao_encontrada é lançada, indicando que a estrela com o ID fornecido não foi encontrada. Caso contrário, a operação é confirmada com um COMMIT e uma mensagem de sucesso é exibida.
 	PROCEDURE excluir_estrela(p_id_estrela IN VARCHAR2) IS
 		e_estrela_nao_encontrada EXCEPTION;
 		PRAGMA EXCEPTION_INIT(e_estrela_nao_encontrada, -20001);
@@ -101,7 +106,7 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 		  dbms_output.put_line('Estrela não encontrada.');
 		WHEN OTHERS THEN
 		  dbms_output.put_line('Erro ao excluir estrela: ' || SQLERRM);
-  END excluir_estrela;
+  	END excluir_estrela;
 
 /*
 				 __       __              _          
