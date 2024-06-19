@@ -1,3 +1,10 @@
+---------------
+--  OFICIAL  --
+---------------
+
+--Este arquivo contém o pacote comandante com seu relatório.
+
+
 CREATE OR REPLACE PACKAGE PacoteOficial AS
   PROCEDURE relatorio_habitantes_por_nacao(p_nome_nacao IN VARCHAR2, p_agrupamento IN VARCHAR2 DEFAULT NULL);
 END PacoteOficial;
