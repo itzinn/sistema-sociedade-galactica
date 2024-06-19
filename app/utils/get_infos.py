@@ -1,4 +1,4 @@
-from utils.procedures import call_get_planet_info, call_monitor_planet_info
+from utils.procedures import call_get_planet_info, call_monitor_planet_info, call_relatorio_estrelas
 
 def get_overview_info(usertype):
     forms = ''
@@ -105,6 +105,13 @@ def get_relatorios_info(usertype, cpi, action):
         info += monitor_info
         pass
     elif usertype == 'CIENTISTA':
+        info = '<br><hr><br>'
+        info += '<h2>Relatório de Cientista</h2><br>'
+
+        relatorio_estrelas = call_relatorio_estrelas()
+
+        info += relatorio_estrelas
+
         pass
     return info
 

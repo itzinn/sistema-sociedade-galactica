@@ -199,3 +199,118 @@ def call_listar_estrelas():
     print(output)
 
     return "\n".join(output)
+
+def call_relatorio_estrelas():
+    conn = db.get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('DBMS_OUTPUT.ENABLE')
+        cursor.callproc('PacoteCientista.relatorio_estrelas')
+        
+        output = []
+        while True:
+            line = cursor.callproc("DBMS_OUTPUT.GET_LINE", (oracledb.STRING_VAR, 0))
+            if line[1] != 0:
+                break
+            output.append(line[0])
+        
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        
+        formatted_output = "<br>".join(line.strip() for line in output)
+        return formatted_output
+    except Exception as e:
+        print(f"Erro ao gerar relatório de estrelas: {e}")
+    finally:
+        cursor.close()
+
+def call_relatorio_planetas():
+    conn = db.get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('DBMS_OUTPUT.ENABLE')
+        cursor.callproc('PacoteCientista.relatorio_planetas')
+        
+        output = []
+        while True:
+            line = cursor.callproc("DBMS_OUTPUT.GET_LINE", (oracledb.STRING_VAR, 0))
+            if line[1] != 0:
+                break
+            output.append(line[0])
+        
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        
+        formatted_output = "<br>".join(line.strip() for line in output)
+        return formatted_output
+    except Exception as e:
+        print(f"Erro ao gerar relatório de planetas: {e}")
+    finally:
+        cursor.close()
+
+def call_relatorio_sistemas():
+    conn = db.get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('DBMS_OUTPUT.ENABLE')
+        cursor.callproc('PacoteCientista.relatorio_sistemas')
+        
+        output = []
+        while True:
+            line = cursor.callproc("DBMS_OUTPUT.GET_LINE", (oracledb.STRING_VAR, 0))
+            if line[1] != 0:
+                break
+            output.append(line[0])
+        
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        
+        formatted_output = "<br>".join(line.strip() for line in output)
+        return formatted_output
+    except Exception as e:
+        print(f"Erro ao gerar relatório de sistemas: {e}")
+    finally:
+        cursor.close()
+
+def call_relatorio_corpos_celestes(ref_id, ref_type, dist_min, dist_max):
+    conn = db.get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('DBMS_OUTPUT.ENABLE')
+        cursor.callproc('PacoteCientista.relatorio_corpos_celestes', [ref_id, ref_type, dist_min, dist_max])
+        
+        output = []
+        while True:
+            line = cursor.callproc("DBMS_OUTPUT.GET_LINE", (oracledb.STRING_VAR, 0))
+            if line[1] != 0:
+                break
+            output.append(line[0])
+        
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        
+        formatted_output = "<br>".join(line.strip() for line in output)
+        return formatted_output
+    except Exception as e:
+        print(f"Erro ao gerar relatório de corpos celestes: {e}")
+    finally:
+        cursor.close()
+
+def call_relatorio_cc_otimizado(ref_id, ref_type, dist_min, dist_max):
+    conn = db.get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('DBMS_OUTPUT.ENABLE')
+        cursor.callproc('PacoteCientista.relatorio_cc_otimizado', [ref_id, ref_type, dist_min, dist_max])
+        
+        output = []
+        while True:
+            line = cursor.callproc("DBMS_OUTPUT.GET_LINE", (oracledb.STRING_VAR, 0))
+            if line[1] != 0:
+                break
+            output.append(line[0])
+        
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        
+        formatted_output = "<br>".join(line.strip() for line in output)
+        return formatted_output
+    except Exception as e:
+        print(f"Erro ao gerar relatório otimizado de corpos celestes: {e}")
+    finally:
+        cursor.close()
