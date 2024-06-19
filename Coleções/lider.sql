@@ -310,12 +310,14 @@ CREATE OR REPLACE PACKAGE BODY PacoteLiderFaccao AS
 		v_nome_facao FACCAO.NOME%TYPE;
 		v_check_faccao FACCAO.NOME%TYPE;
 
+		nao_lider EXCEPTION;
+
 	BEGIN
 		v_nome_facao := faccao_de_lider(p_cpi);
 
 		IF v_nome_facao IS NULL THEN
-			DBMS_OUTPUT.PUT_LINE('Usuário não é líder de nenhuma facção.');
-			RETURN;
+			RAISE nao_lider;
+			--RETURN;
 		END IF;
 
 		SELECT FACCAO INTO v_check_faccao FROM GERENCIAMENTO_FACCAO WHERE COMUNIDADE = p_comunidade AND FACCAO = v_nome_facao;
@@ -326,6 +328,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteLiderFaccao AS
 		COMMIT;
 
 	EXCEPTION
+		WHEN nao_lider THEN
+			DBMS_OUTPUT.PUT_LINE('Usuário não é líder de nenhuma facção.');
 		WHEN NO_DATA_FOUND THEN
 			DBMS_OUTPUT.PUT_LINE('Comunidade não encontrada.');
 		WHEN OTHERS THEN
@@ -340,14 +344,15 @@ CREATE OR REPLACE PACKAGE BODY PacoteLiderFaccao AS
 		v_nome_facao FACCAO.NOME%TYPE;
 		v_check_facao FACCAO.NOME%TYPE;
 		lider_novo_errado EXCEPTION;
+		nao_lider EXCEPTION;
 
 	BEGIN
 
 		v_nome_facao := faccao_de_lider(p_cpi);
 
 		IF v_nome_facao IS NULL THEN
-			DBMS_OUTPUT.PUT_LINE('Usuário não é líder de nenhuma facção.');
-			RETURN;
+			RAISE nao_lider;
+			--RETURN;
 		END IF;
 
 		SELECT NACAO INTO v_nacao FROM LIDER WHERE CPI = p_novo_lider;
@@ -364,6 +369,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteLiderFaccao AS
 		COMMIT;
 
 	EXCEPTION
+		WHEN nao_lider THEN
+			DBMS_OUTPUT.PUT_LINE('Usuário não é líder de nenhuma facção.');
 		WHEN lider_novo_errado THEN
 			DBMS_OUTPUT.PUT_LINE('Lider não pertence a faccao.');
 		WHEN OTHERS THEN
