@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, session
 import hashlib
 import db
 from utils.procedures import call_get_leader_info
@@ -43,20 +43,21 @@ def login():
             if row:
                 # Desempacota as colunas retornadas
                 cargo, e_lider, nome, nacao, especie = row
+                session['cpi'] = lider
                 session['e_lider'] = e_lider
-                session['usertype'] = cargo
+                session['usertype'] = cargo.strip()
                 session['name'] = nome
                 session['nacao'] = nacao
                 session['especie'] = especie
-
+                print(session)
             else:
-                flash('Erro ao obter o tipo de usuário.', 'danger')
+                print('Erro ao obter o tipo de usuário.', 'danger')
                 return redirect(url_for('login'))
 
-            flash('Login successful!', 'success')
+            print('Login successful!', 'success')
             return redirect(url_for('overview.overview'))
         else:
-            flash('Invalid credentials, please try again.', 'danger')
+            print('Invalid credentials, please try again.', 'danger')
 
     return render_template('login.html')
 

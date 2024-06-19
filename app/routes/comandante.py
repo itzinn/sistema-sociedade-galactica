@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, flash, session
+from flask import Blueprint, request, redirect, url_for, session
 from utils.procedures import (
     call_incluir_federacao,
     call_excluir_federacao,
@@ -14,14 +14,14 @@ def incluir_nacao_federacao():
     cpi = session.get('cpi')
     
     if not cpi:
-        flash('Usuário não autenticado', 'danger')
-        return redirect(url_for('login'))
+        print('Usuário não autenticado', 'danger')
+        return redirect(url_for('auth.login'))
 
     try:
         call_incluir_federacao(cpi, federacao)
-        flash('Nação incluída na federação com sucesso!', 'success')
+        print('Nação incluída na federação com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao incluir nação na federação: {e}', 'danger')
+        print(f'Erro ao incluir nação na federação: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
 
@@ -31,14 +31,14 @@ def excluir_nacao_federacao():
     cpi = session.get('cpi')
 
     if not cpi:
-        flash('Usuário não autenticado', 'danger')
-        return redirect(url_for('login'))
+        print('Usuário não autenticado', 'danger')
+        return redirect(url_for('auth.login'))
 
     try:
         call_excluir_federacao(cpi, federacao)
-        flash('Nação excluída da federação com sucesso!', 'success')
+        print('Nação excluída da federação com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao excluir nação da federação: {e}', 'danger')
+        print(f'Erro ao excluir nação da federação: {e}', 'danger')
 
     return redirect(url_for('overview.overview'))
 
@@ -49,14 +49,14 @@ def criar_nova_federacao():
     cpi = session.get('cpi')
 
     if not cpi:
-        flash('Usuário não autenticado', 'danger')
-        return redirect(url_for('login'))
+        print('Usuário não autenticado', 'danger')
+        return redirect(url_for('auth.login'))
 
     try:
         call_criar_nova_federacao(cpi, nova_federacao, data_fundacao)
-        flash('Nova federação criada com sucesso!', 'success')
+        print('Nova federação criada com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao criar nova federação: {e}', 'danger')
+        print(f'Erro ao criar nova federação: {e}', 'danger')
 
     return redirect(url_for('overview.overview'))
 
@@ -66,13 +66,13 @@ def inserir_dominancia_planeta():
     cpi = session.get('cpi')
 
     if not cpi:
-        flash('Usuário não autenticado', 'danger')
-        return redirect(url_for('login'))
+        print('Usuário não autenticado', 'danger')
+        return redirect(url_for('auth.login'))
 
     try:
         call_inserir_dominancia_planeta(cpi, planeta)
-        flash('Dominância do planeta inserida com sucesso!', 'success')
+        print('Dominância do planeta inserida com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao inserir dominância do planeta: {e}', 'danger')
+        print(f'Erro ao inserir dominância do planeta: {e}', 'danger')
 
     return redirect(url_for('overview.overview'))

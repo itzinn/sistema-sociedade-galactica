@@ -1,3 +1,5 @@
+from utils.procedures import call_get_planet_info, call_monitor_planet_info
+
 def get_overview_info(usertype):
     forms = ''
     if usertype == 'OFICIAL':
@@ -50,17 +52,9 @@ def get_overview_info(usertype):
         '''
     return forms
 
-
-def get_relatorios_info(usertype):
-    if usertype == 'OFICIAL':
-        pass
-    elif usertype == 'COMANDANTE':
-        pass
-    elif usertype == 'CIENTISTA':
-        pass
-
 def get_faction_lider_info(ehLider):
-    if(ehLider):
+    forms = ''
+    if(ehLider == 'TRUE'):
         forms = '''
         <form method="post" action="/alterar_nome_faccao">
             <label for="novo_nome">Novo nome da facção:</label>
@@ -85,3 +79,26 @@ def get_faction_lider_info(ehLider):
         '''
 
     return forms
+
+def get_relatorios_info(usertype, cpi, action):
+    info = ''
+    if usertype == 'OFICIAL':
+        pass
+    elif usertype == 'COMANDANTE':
+        planet_info = call_get_planet_info(cpi, action)
+        print(planet_info)
+
+        monitor_info = call_monitor_planet_info()
+        print(monitor_info)
+        pass
+    elif usertype == 'CIENTISTA':
+        pass
+    return info
+
+def get_relatorios_lider_info(ehLider):
+    info = ''
+
+    if(ehLider == 'TRUE'):
+        info = '..vc é lider, parabens cara'
+
+    return info

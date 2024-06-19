@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, flash, session
+from flask import Blueprint, request, redirect, url_for, session
 from utils.procedures import (
     call_alterar_nome_faccao,
     call_indicar_novo_lider,
@@ -14,14 +14,14 @@ def alterar_nome_faccao():
     cpi = session.get('cpi')
     
     if not cpi:
-        flash('Usuário não autenticado', 'danger')
-        return redirect(url_for('login'))
+        print('Usuário não autenticado', 'danger')
+        return redirect(url_for('auth.login'))
     
     try:
         call_alterar_nome_faccao(cpi, novo_nome)
-        flash('Nome da facção alterado com sucesso!', 'success')
+        print('Nome da facção alterado com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao alterar nome da facção: {e}', 'danger')
+        print(f'Erro ao alterar nome da facção: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
 
@@ -31,14 +31,14 @@ def indicar_novo_lider():
     cpi = session.get('cpi')
     
     if not cpi:
-        flash('Usuário não autenticado', 'danger')
-        return redirect(url_for('login'))
+        print('Usuário não autenticado', 'danger')
+        return redirect(url_for('auth.login'))
     
     try:
         call_indicar_novo_lider(cpi, novo_lider)
-        flash('Novo líder indicado com sucesso!', 'success')
+        print('Novo líder indicado com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao indicar novo líder: {e}', 'danger')
+        print(f'Erro ao indicar novo líder: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
 
@@ -48,14 +48,14 @@ def credenciar_comunidade():
     cpi = session.get('cpi')
     
     if not cpi:
-        flash('Usuário não autenticado', 'danger')
-        return redirect(url_for('login'))
+        print('Usuário não autenticado', 'danger')
+        return redirect(url_for('auth.login'))
     
     try:
         call_cadastrar_nova_comunidade(cpi, comunidade)
-        flash('Comunidade credenciada com sucesso!', 'success')
+        print('Comunidade credenciada com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao credenciar comunidade: {e}', 'danger')
+        print(f'Erro ao credenciar comunidade: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
 
@@ -65,13 +65,13 @@ def remover_faccao():
     cpi = session.get('cpi')
     
     if not cpi:
-        flash('Usuário não autenticado', 'danger')
-        return redirect(url_for('login'))
+        print('Usuário não autenticado', 'danger')
+        return redirect(url_for('auth.login'))
     
     try:
         call_remover_relacao_facao(cpi, faccao)
-        flash('Facção removida com sucesso!', 'success')
+        print('Facção removida com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao remover facção: {e}', 'danger')
+        print(f'Erro ao remover facção: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))

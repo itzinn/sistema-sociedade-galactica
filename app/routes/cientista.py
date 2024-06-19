@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, flash
+from flask import Blueprint, request, redirect, url_for
 from utils.procedures import (
     call_criar_estrela,
     call_atualizar_estrela,
@@ -20,9 +20,9 @@ def criar_estrela():
 
     try:
         call_criar_estrela(id_estrela, nome, classificacao, massa, x, y, z)
-        flash('Estrela criada com sucesso!', 'success')
+        print('Estrela criada com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao criar estrela: {e}', 'danger')
+        print(f'Erro ao criar estrela: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
 
@@ -38,9 +38,9 @@ def atualizar_estrela():
 
     try:
         call_atualizar_estrela(id_estrela, nome, classificacao, massa, x, y, z)
-        flash('Estrela atualizada com sucesso!', 'success')
+        print('Estrela atualizada com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao atualizar estrela: {e}', 'danger')
+        print(f'Erro ao atualizar estrela: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
 
@@ -50,9 +50,9 @@ def deletar_estrela():
 
     try:
         call_deletar_estrela(id_estrela)
-        flash('Estrela deletada com sucesso!', 'success')
+        print('Estrela deletada com sucesso!', 'success')
     except Exception as e:
-        flash(f'Erro ao deletar estrela: {e}', 'danger')
+        print(f'Erro ao deletar estrela: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))
 
@@ -60,9 +60,10 @@ def deletar_estrela():
 def listar_estrelas():
     try:
         estrelas = call_listar_estrelas()
-        # Do something with the results if needed
-        flash('Lista de estrelas atualizada!', 'success')
+        print(estrelas)
+        
+        print('Lista de estrelas atualizada!', 'success')
     except Exception as e:
-        flash(f'Erro ao listar estrelas: {e}', 'danger')
+        print(f'Erro ao listar estrelas: {e}', 'danger')
     
     return redirect(url_for('overview.overview'))

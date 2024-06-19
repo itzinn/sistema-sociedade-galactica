@@ -1,4 +1,5 @@
 import db
+import oracledb
 
 #Procedures gerais
 def call_insert_missing_leaders():
@@ -15,12 +16,12 @@ def call_insert_missing_leaders():
 
 def call_get_leader_info(conn, cpi):
     cursor = conn.cursor()
-    cargo = cursor.var(cx_Oracle.STRING)
-    e_lider = cursor.var(cx_Oracle.STRING)
+    cargo = cursor.var(oracledb.STRING)
+    e_lider = cursor.var(oracledb.STRING)
     try:
         cursor.callproc('get_leader_info', [cpi, cargo, e_lider])
         return cargo.getvalue(), e_lider.getvalue()
-    except cx_Oracle.DatabaseError as e:
+    except oracledb.DatabaseError as e:
         error, = e.args
         print(f"Error calling get_leader_info: {error.message}")
         return None, None
@@ -77,6 +78,71 @@ def call_inserir_dominancia_planeta(cpi, planeta):
     cursor.callproc('PacoteComandante.inserir_dominancia_planeta', [cpi, planeta])
     conn.commit()
 
+def call_get_planet_info(cpi, action):
+    conn = db.get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Enable DBMS_OUTPUT
+        cursor.callproc('DBMS_OUTPUT.ENABLE')
+        
+        # Call the procedure
+        cursor.callproc('PacoteComandante.get_planet_info', [cpi, action])
+        
+        # Fetch DBMS_OUTPUT
+        output = []
+        line_var = cursor.arrayvar(oracledb.STRING, 10000)  # Large enough array to hold the output lines
+        num_lines_var = cursor.var(oracledb.NUMBER)
+        
+        while True:
+            num_lines_var.setvalue(0, 10000)  # Number of lines to fetch
+            cursor.callproc("DBMS_OUTPUT.GET_LINES", (line_var, num_lines_var))
+            num_lines = int(num_lines_var.getvalue())
+            lines = line_var.getvalue()[:num_lines]
+            output.extend(lines)
+            if num_lines < 10000:
+                break
+            
+        return "\n".join(output)
+    finally:
+        # Ensure DBMS_OUTPUT is disabled
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        cursor.close()
+
+def call_monitor_planet_info(start_date=None, end_date=None):
+    conn = db.get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Enable DBMS_OUTPUT
+        cursor.callproc('DBMS_OUTPUT.ENABLE')
+        
+        # Call the procedure with or without date parameters
+        if start_date and end_date:
+            cursor.callproc('PacoteComandante.monitor_planet_info', [start_date, end_date])
+        else:
+            cursor.callproc('PacoteComandante.monitor_planet_info')
+        
+        # Fetch DBMS_OUTPUT
+        output = []
+        line_var = cursor.arrayvar(oracledb.STRING, 10000)  # Large enough array to hold the output lines
+        num_lines_var = cursor.var(oracledb.NUMBER)
+        
+        while True:
+            num_lines_var.setvalue(0, 10000)  # Number of lines to fetch
+            cursor.callproc("DBMS_OUTPUT.GET_LINES", (line_var, num_lines_var))
+            num_lines = int(num_lines_var.getvalue())
+            lines = line_var.getvalue()[:num_lines]
+            output.extend(lines)
+            if num_lines < 10000:
+                break
+            
+        return "\n".join(output)
+    finally:
+        # Ensure DBMS_OUTPUT is disabled
+        cursor.callproc('DBMS_OUTPUT.DISABLE')
+        cursor.close()
+
 #Procedures Cientista
 def call_criar_estrela(id_estrela, nome, classificacao, massa, x, y, z):
     conn = db.get_db()
@@ -99,7 +165,24 @@ def call_deletar_estrela(id_estrela):
 def call_listar_estrelas():
     conn = db.get_db()
     cursor = conn.cursor()
+    
+    # Enable DBMS_OUTPUT
+    cursor.callproc("DBMS_OUTPUT.ENABLE")
+    
+    # Call the procedure
     cursor.callproc('PacoteCientista.relatorio_estrelas')
-    # Fetch and return results if needed
-    stars = cursor.fetchall()
-    return stars
+    
+    # Retrieve the DBMS_OUTPUT
+    output = []
+    while True:
+        line = cursor.callproc("DBMS_OUTPUT.GET_LINE", (oracledb.STRING_VAR, 0))
+        if line[1] != 0:
+            break
+        output.append(line[0])
+    
+    # Disable DBMS_OUTPUT
+    cursor.callproc("DBMS_OUTPUT.DISABLE")
+    
+    print(output)
+
+    return "\n".join(output)
