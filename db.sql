@@ -29,14 +29,18 @@ CREATE TABLE LOG_TABLE (
 
 
 -- Procedure que retorna o cargo de um lider e se ele é lider de uma facção
+-- Procedure que retorna o cargo de um líder e se ele é líder de uma facção
 CREATE OR REPLACE PROCEDURE get_leader_info (
-    p_cpi IN LIDER.CPI%TYPE 
+    p_cpi IN LIDER.CPI%TYPE, -- Parâmetro de entrada que representa o CPI do líder.
+    p_results OUT SYS_REFCURSOR -- Parâmetro de saída que retornará os resultados em formato de tabela.
 ) IS
-    v_cargo LIDER.CARGO%TYPE; 
-    v_e_lider VARCHAR2(5); 
+    v_cargo LIDER.CARGO%TYPE; -- Variável para armazenar o cargo do líder.
+    v_e_lider VARCHAR2(5); -- Variável para armazenar 'TRUE' ou 'FALSE' indicando se é líder de facção.
 BEGIN
+    -- Seleciona o cargo do líder com base no CPI fornecido.
     SELECT CARGO INTO v_cargo FROM LIDER WHERE CPI = p_cpi;
 
+    -- Verifica se o líder é o líder de uma facção.
     SELECT CASE WHEN EXISTS (
         SELECT 1
         FROM FACCAO
@@ -45,8 +49,11 @@ BEGIN
     THEN 'TRUE' ELSE 'FALSE' END INTO v_e_lider
     FROM DUAL;
 
-    -- Exibe a saída no formato "CARGO / É LIDER".
-    DBMS_OUTPUT.PUT_LINE(v_cargo || ' / ' || v_e_lider);
+    -- Retorna os resultados como um cursor.
+    OPEN p_results FOR
+    SELECT v_cargo AS CARGO, v_e_lider AS E_LIDER
+    FROM DUAL;
+
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         DBMS_OUTPUT.PUT_LINE('Nenhum líder encontrado com o CPI fornecido.');
@@ -54,6 +61,7 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Erro: ' || SQLERRM);
 END;
 /
+
 
 
 -- Procedure que insere todos os lideres não cadastrados na tabela de usuários.
