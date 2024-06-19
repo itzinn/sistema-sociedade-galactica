@@ -12,7 +12,9 @@
         {{ overview_info | safe }}
         {{ faction_lider_info | safe }}
     </div>
-    <a href="/relatorios">Ir para Relatórios</a>
+    <form action="/relatorios" method="get">
+        <button type="submit" class="button">Ir para Relatórios</button>
+    </form>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
