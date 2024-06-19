@@ -20,7 +20,7 @@ def call_get_leader_info(conn, cpi):
     cargo = cursor.var(oracledb.STRING)
     e_lider = cursor.var(oracledb.STRING)
     try:
-        cursor.callproc('get_leader_info', [cpi, cargo, e_lider])
+        cursor.callproc('PacoteStart.get_leader_info', [cpi, cargo, e_lider])
         return cargo.getvalue(), e_lider.getvalue()
     except oracledb.DatabaseError as e:
         error, = e.args

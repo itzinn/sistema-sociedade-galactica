@@ -34,7 +34,7 @@ def login():
 
             # Chamada ao procedimento com o CPI do líder e o cursor de saída
             cpi_lider = user[1]  # Substitua pelo CPI do líder que deseja testar
-            cursor.callproc("get_leader_info", [cpi_lider, output_cursor])
+            cursor.callproc("PacoteStart.get_leader_info", [cpi_lider, output_cursor])
 
             # Processar os resultados do cursor de saída
             result_cursor = output_cursor.getvalue()

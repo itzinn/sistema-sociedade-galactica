@@ -105,7 +105,7 @@ def get_faction_lider_info(ehLider):
 
     return forms
 
-def get_relatorios_info(usertype, cpi, action):
+def get_relatorios_info(usertype, cpi, action, start_date=None, end_date=None):
     info = ''
     if usertype == 'OFICIAL':
         pass
@@ -126,7 +126,11 @@ def get_relatorios_info(usertype, cpi, action):
         </form>
         '''
 
-        monitor_info = call_monitor_planet_info()
+        if start_date is not None and end_date is not None:
+            monitor_info = call_monitor_planet_info(start_date, end_date)
+        else:
+            monitor_info = call_monitor_planet_info()
+        
         info += monitor_info
         
     elif usertype == 'CIENTISTA':
