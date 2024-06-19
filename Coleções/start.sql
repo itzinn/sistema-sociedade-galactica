@@ -49,7 +49,6 @@ CREATE OR REPLACE PACKAGE BODY PacoteStart AS
 
 	---- Este procedimento recupera informações detalhadas sobre um líder específico com base no CPI fornecido. Primeiro busca o cargo, nome, nação e espécie do líder na tabela LIDER e logo verifica se o líder é um líder de facção, retornando 'TRUE' ou 'FALSE'. Os resultados são retornados em um cursor, que inclui o cargo, a indicação se é líder de facção, o nome, a nação e a espécie do líder. Se nenhum líder for encontrado para o CPI fornecido, uma mensagem de erro será exibida.
 	PROCEDURE get_leader_info (
-	PROCEDURE get_leader_info (
 		p_cpi IN LIDER.CPI%TYPE,
 		p_results OUT SYS_REFCURSOR
 	) IS
@@ -134,7 +133,7 @@ END PacoteStart;
 	-- Fecha o cursor
 	--CLOSE p_results;
 --END;
-/
+--/
 
 
 
