@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import hashlib
 import db
 from utils.procedures import call_get_leader_info
+import oracledb
+
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -28,20 +30,25 @@ def login():
             # Armazena as informações do usuário na sessão
             session['user'] = user
 
-            cursor.callproc('get_leader_info', [user[1]])
-            result = cursor.fetchone()
-            session['usertype'] = result[0] if result else None
-            session['ehLider'] = result[1] if result else None
+            output_cursor = cursor.var(oracledb.CURSOR)
 
-            #TODO: procedure get_leader_info trazer todas essas informações ao invés de só o cargo e se é lider ou não?
-            cursor.execute("SELECT * FROM LIDER WHERE CPI = :cpi", {'cpi': user[1]})
-            lider = cursor.fetchone()
-            if lider:
-                session['cpi'] = lider[0]
-                session['name'] = lider[1]
-                session['nacao'] = lider[3]
-                session['especie'] = lider[4]
-                print(session)
+            # Chamada ao procedimento com o CPI do líder e o cursor de saída
+            cpi_lider = user[1]  # Substitua pelo CPI do líder que deseja testar
+            cursor.callproc("get_leader_info", [cpi_lider, output_cursor])
+
+            # Processar os resultados do cursor de saída
+            result_cursor = output_cursor.getvalue()
+
+            row = result_cursor.fetchone()
+            if row:
+                # Desempacota as colunas retornadas
+                cargo, e_lider, nome, nacao, especie = row
+                session['e_lider'] = e_lider
+                session['usertype'] = cargo
+                session['name'] = nome
+                session['nacao'] = nacao
+                session['especie'] = especie
+
             else:
                 flash('Erro ao obter o tipo de usuário.', 'danger')
                 return redirect(url_for('login'))

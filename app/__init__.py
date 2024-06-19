@@ -6,17 +6,11 @@ from routes.relatorios import relatorios_bp
 from routes.lideres import lideres_bp
 from routes.comandante import comandante_bp
 from routes.cientista import cientista_bp
-import oracledb
-
-from utils.procedures import call_insert_missing_leaders
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '[hashgrandona]'
 
 db.init_app(app)
-
-with app.app_context():
-    call_insert_missing_leaders()
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(overview_bp)

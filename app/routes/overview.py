@@ -10,11 +10,11 @@ def overview():
         return redirect(url_for('auth.login'))
 
     usertype = session['usertype']
-    ehLider = session['ehLider']
+    #ehLider = session['ehLider']
 
     overview_info = get_overview_info(usertype)
-    faction_lider_info = get_faction_lider_info(ehLider)
+    #faction_lider_info = get_faction_lider_info(ehLider)
 
     username = session['name']
-    return render_template('overview.html', username=username, overview_info=overview_info, faction_lider_info=faction_lider_info)
+    return render_template('overview.html', username=username, overview_info=overview_info)
 
