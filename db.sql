@@ -28,7 +28,6 @@ CREATE TABLE LOG_TABLE (
 );
 
 
--- Procedure que retorna o cargo de um lider e se ele é lider de uma facção
 -- Procedure que retorna o cargo de um líder e se ele é líder de uma facção
 CREATE OR REPLACE PROCEDURE get_leader_info (
     p_cpi IN LIDER.CPI%TYPE, -- Parâmetro de entrada que representa o CPI do líder.
