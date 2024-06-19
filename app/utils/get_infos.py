@@ -112,9 +112,23 @@ def get_relatorios_info(usertype, cpi, action, start_date=None, end_date=None, p
         info = '<br><hr><br>'
         info += '<h2>Relatório de Oficial</h2><br>'
         
-        relatorio_oficial = call_relatorio_habitantes_por_nacao(p_nome_nacao, p_agrupamento)
+        info += '''
+        <form action="/relatorios" method="GET">
+            <label for="p_nome_nacao">Nome da Nação:</label>
+            <input type="text" id="p_nome_nacao" name="p_nome_nacao">
+            <label for="p_agrupamento">Agrupamento:</label>
+            <input type="text" id="p_agrupamento" name="p_agrupamento">
+            <input type="submit" value="Submit">
+        </form>
+        '''
 
-        info += relatorio_oficial
+        try:
+            relatorio_oficial = call_relatorio_habitantes_por_nacao(p_nome_nacao, p_agrupamento)
+            
+            info += relatorio_oficial
+        except Exception as e:
+            info += f"<br>Um erro ocorreu: {str(e)}<br>"
+
 
     elif usertype == 'COMANDANTE':
         info = '<br><hr><br>'
