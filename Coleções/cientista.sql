@@ -109,7 +109,7 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
   	END excluir_estrela;
 
 /*
-				 __       __              _          
+		     __       __              _          
 	  ____ ___  / /___ _ / /_ ___   ____ (_)___   ___
 	 / __// -_)/ // _ `// __// _ \ / __// // _ \ (_-<
 	/_/   \__//_/ \_,_/ \__/ \___//_/  /_/ \___//___/
@@ -117,7 +117,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 */
 
 	PROCEDURE relatorio_estrelas IS
-		
+	-- Esse relatório retorna informações úteis para se catalogar estrelas
+	-- As informações incluem os seguintes dados: ID, Nome, Classificação, Mass, Coordenadas e Número de planetas que a orbitam
 	BEGIN
 		FOR r IN (
 		  SELECT e.ID_ESTRELA, e.NOME, e.CLASSIFICACAO, e.MASSA, e.X, e.Y, e.Z, COUNT(op.PLANETA) AS NUM_PLANETAS
@@ -135,6 +136,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 
 
 	PROCEDURE relatorio_planetas IS
+	-- Esse relatório retorna informações úteis para se catalogar planetas
+	-- As informações incluem os seguintes dados: ID, Massa, Raio, Classificação e Número de Espécies que nele habitam.
 	BEGIN
 		FOR r IN (
 		  SELECT p.ID_ASTRO, p.MASSA, p.RAIO, p.CLASSIFICACAO, COUNT(h.ESPECIE) AS NUM_ESPECIES
@@ -151,7 +154,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 
 
 	PROCEDURE relatorio_sistemas IS
-		
+	-- Esse relatório retorna informações úteis para se catalogar sistemas inteiros
+	-- As informações incluem os seguintes dados: ID da estrela principal, Nome da estrela principal, Nome do Sistema, Número de Planetas, Número de Estrelas Orbitantes com relação à estrela principal.
 	BEGIN
 		FOR r IN (
 		  SELECT s.ESTRELA, e.NOME AS NOME_ESTRELA, s.NOME AS NOME_SISTEMA, 
@@ -169,12 +173,22 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 		  dbms_output.put_line('Erro ao gerar relatório de sistemas: ' || SQLERRM);
 	END relatorio_sistemas;
 
+
+
 	PROCEDURE relatorio_corpos_celestes(ref_id IN VARCHAR2, ref_type IN VARCHAR2, dist_min IN NUMBER, dist_max IN NUMBER) IS
+	/*
+		Esse relatório é pensado em retornar todos os corpos celestes (estrelas e planetas) que estão em uma faixa de distância deteminada de uma estrela ou sistema.
+		Parâmetros:
+			ref_id	: id de uma estrela ou nome de um sistema
+			ref_type: tipo definido como ESTRELA ou SISTEMA
+			dist_min: um número
+			dist_max: um número
+	*/
 	ref_x NUMBER;
 	ref_y NUMBER;
 	ref_z NUMBER;
   	BEGIN
-		-- Obter coordenadas da estrela ou sistema de referência
+		-- Primeiro, coletamos as coordenadas da estrela
 		IF ref_type = 'ESTRELA' THEN
 		BEGIN
 			SELECT e.X, e.Y, e.Z
@@ -192,6 +206,8 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 			dbms_output.put_line('Erro ao obter coordenadas da estrela de referência: ' || SQLERRM);
 			RETURN;
 		END;
+
+		-- No caso de passarem um sistema, devemos pegar a estrela principal dele para extrair suas coordenadas
 		ELSIF ref_type = 'SISTEMA' THEN
 		BEGIN
 			SELECT e.X, e.Y, e.Z
@@ -215,7 +231,10 @@ CREATE OR REPLACE PACKAGE BODY PacoteCientista AS
 		RETURN;
 		END IF;
 
-		-- Consultar corpos celestes dentro do intervalo de distâncias
+		-- Aqui temos a consulta em si
+		-- Primeiro, selecionamos todas as estrelas que estejam na área desejada (filtro determinado pela distância euclidiana entre elas)
+		-- Depois, fazemos um UNION com todos os planetas que estão nessa área, usando a mesma estratégia.
+		-- Para calcular a distância do planeta, busca-se a estrela que ele orbita, calcula-se a distância dela para a referência e soma-se com a distância mínima entre planeta e sua estrela
 		FOR r IN (
 		SELECT 'Estrela' AS TIPO, e.ID_ESTRELA AS ID, e.NOME, e.CLASSIFICACAO, e.MASSA, e.X, e.Y, e.Z,
 				SQRT(POWER(e.X - ref_x, 2) + POWER(e.Y - ref_y, 2) + POWER(e.Z - ref_z, 2)) AS DISTANCIA
