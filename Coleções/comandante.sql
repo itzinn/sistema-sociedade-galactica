@@ -119,7 +119,7 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 			DBMS_OUTPUT.PUT_LINE('Erro ao criar nova federação e nação: ' || SQLERRM);
 	END excluir_federacao;
 
-
+	--O procedimento criar_nova_federacao tem como objetivo criar uma nova federação e associar a ela uma nação. Primeiramente, obtém o nome da nação associada ao comandante e verifica se o nome da federação fornecido não é nulo. Em seguida, tenta inserir a nova federação na tabela FEDERACAO com o nome e a data de fundação fornecidos. Se a federação for inserida com sucesso, o procedimento atualiza a tabela NACAO para associar a nação à nova federação. Caso ocorra algum erro durante o processo, como o comandante não estar associado a nenhuma nação, o nome da federação ser nulo ou a federação já existir, o procedimento lança uma exceção e exibe uma mensagem de erro.
 	PROCEDURE criar_nova_federacao(cpi IN CHAR, nome_federacao IN VARCHAR2, data_fundacao IN DATE) IS
 
 		v_nome_nacao NACAO.NOME%TYPE;
@@ -160,6 +160,7 @@ CREATE OR REPLACE PACKAGE BODY PacoteComandante AS
 	END criar_nova_federacao;
 
 
+	--O procedimento remover_relacao_facao tem como objetivo remover a relação entre uma facção e uma nação especificada. Primeiramente, ele verifica se o usuário é realmente líder de alguma facção e se a nação fornecida não é nula, lançando uma exceção se qualquer uma dessas condições não for satisfeita. Em seguida, tenta deletar a entrada correspondente na tabela NACAO_FACCAO que associa a facção e a nação. Após a remoção, verifica se alguma linha foi afetada; caso contrário, lança uma exceção indicando que nada foi deletado. Se a remoção for bem-sucedida, exibe uma mensagem de confirmação e executa um COMMIT.
 	PROCEDURE inserir_dominancia_planeta(cpi IN CHAR, nome_planeta IN VARCHAR2) IS
 
 		v_nome_nacao NACAO.NOME%TYPE;
@@ -396,30 +397,31 @@ END PacoteComandante;
 
 
 
-DECLARE
-	nome_comandante LIDER.cpi%TYPE;
-	nome_federacao FEDERACAO.nome%TYPE;
-	data_fundacao DATE;
-	fed_nova FEDERACAO.nome%TYPE;
-	nome_planeta PLANETA.ID_ASTRO%TYPE;
+--Exemplo para testar no oracle, DELETAR DEPOIS!!!
+--DECLARE
+--	nome_comandante LIDER.cpi%TYPE;
+--	nome_federacao FEDERACAO.nome%TYPE;
+--	data_fundacao DATE;
+--	fed_nova FEDERACAO.nome%TYPE;
+--	nome_planeta PLANETA.ID_ASTRO%TYPE;
 
-BEGIN
-	nome_comandante := '145.234.235-01'; -- Obtido pelo login do usuário no sistema
-	nome_federacao := 'FedNova'; -- Nome da nova federação a ser criada
-	data_fundacao := SYSDATE; -- Data de fundação da nova federação
-	fed_nova := 'Amet quo.';
-	nome_planeta := 'HATS-8 b'; 
+--BEGIN
+--	nome_comandante := '145.234.235-01'; -- Obtido pelo login do usuário no sistema
+--	nome_federacao := 'FedNova'; -- Nome da nova federação a ser criada
+--	data_fundacao := SYSDATE; -- Data de fundação da nova federação
+--	fed_nova := 'Amet quo.';
+--	nome_planeta := 'HATS-8 b'; 
 
 	--PacoteComandante.criar_nova_federacao(nome_comandante, nome_federacao, data_fundacao);
 	--PacoteComandante.incluir_federacao(nome_comandante, fed_nova);
 	--PacoteComandante.excluir_federacao(nome_comandante, fed_nova);
-	PacoteComandante.inserir_dominancia_planeta(nome_comandante, nome_planeta);
+	--PacoteComandante.inserir_dominancia_planeta(nome_comandante, nome_planeta);
 
- EXCEPTION
-	WHEN OTHERS THEN
-		DBMS_OUTPUT.PUT_LINE('Erro ao executar o bloco PL/SQL: ' || SQLERRM);
-END;
-/
+-- EXCEPTION
+--	WHEN OTHERS THEN
+--		DBMS_OUTPUT.PUT_LINE('Erro ao executar o bloco PL/SQL: ' || SQLERRM);
+--END;
+--/
 
 
 --SELECT * FROM FEDERACAO WHERE NOME = 'FedNova';
