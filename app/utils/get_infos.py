@@ -1,31 +1,8 @@
 def get_overview_info(usertype):
     forms = ''
-    if usertype == 'Líder de facção':
-        forms = '''
-        <form method="post" action="/alterar_nome_faccao">
-            <label for="novo_nome">Novo nome da facção:</label>
-            <input type="text" id="novo_nome" name="novo_nome">
-            <button type="submit">Alterar Nome</button>
-        </form>
-        <form method="post" action="/indicar_novo_lider">
-            <label for="novo_lider">Novo líder:</label>
-            <input type="text" id="novo_lider" name="novo_lider">
-            <button type="submit">Indicar Novo Líder</button>
-        </form>
-        <form method="post" action="/credenciar_comunidade">
-            <label for="comunidade">Credenciar comunidade:</label>
-            <input type="text" id="comunidade" name="comunidade">
-            <button type="submit">Credenciar Comunidade</button>
-        </form>
-        <form method="post" action="/remover_faccao">
-            <label for="faccao">Facção a remover:</label>
-            <input type="text" id="faccao" name="faccao">
-            <button type="submit">Remover Facção</button>
-        </form>
-        '''
-    elif usertype == 'Oficial':
+    if usertype == 'OFICIAL':
         forms = '<p>Oficiais não têm funcionalidades de gerenciamento.</p>'
-    elif usertype == 'Comandante':
+    elif usertype == 'COMANDANTE':
         forms = '''
         <form method="post" action="/incluir_nacao_federacao">
             <label for="federacao">Nome da federação:</label>
@@ -48,7 +25,7 @@ def get_overview_info(usertype):
             <button type="submit">Inserir Dominância do Planeta</button>
         </form>
         '''
-    elif usertype == 'Cientista':
+    elif usertype == 'CIENTISTA':
         forms = '''
         <form method="post" action="/criar_estrela">
             <label for="nome_estrela">Nome da estrela:</label>
@@ -75,11 +52,36 @@ def get_overview_info(usertype):
 
 
 def get_relatorios_info(usertype):
-    if usertype == 'Lider de facção':
+    if usertype == 'OFICIAL':
         pass
-    elif usertype == 'Oficial':
+    elif usertype == 'COMANDANTE':
         pass
-    elif usertype == 'Comandante':
+    elif usertype == 'CIENTISTA':
         pass
-    elif usertype == 'Cientista':
-        pass
+
+def get_faction_lider_info(ehLider):
+    if(ehLider):
+        forms = '''
+        <form method="post" action="/alterar_nome_faccao">
+            <label for="novo_nome">Novo nome da facção:</label>
+            <input type="text" id="novo_nome" name="novo_nome">
+            <button type="submit">Alterar Nome</button>
+        </form>
+        <form method="post" action="/indicar_novo_lider">
+            <label for="novo_lider">Novo líder:</label>
+            <input type="text" id="novo_lider" name="novo_lider">
+            <button type="submit">Indicar Novo Líder</button>
+        </form>
+        <form method="post" action="/credenciar_comunidade">
+            <label for="comunidade">Credenciar comunidade:</label>
+            <input type="text" id="comunidade" name="comunidade">
+            <button type="submit">Credenciar Comunidade</button>
+        </form>
+        <form method="post" action="/remover_faccao">
+            <label for="faccao">Facção a remover:</label>
+            <input type="text" id="faccao" name="faccao">
+            <button type="submit">Remover Facção</button>
+        </form>
+        '''
+
+    return forms
