@@ -1,3 +1,30 @@
+DECLARE
+    c SYS_REFCURSOR; -- Declaração do cursor para armazenar os resultados.
+    v_cargo LIDER.CARGO%TYPE; -- Variável para armazenar o cargo.
+    v_e_lider VARCHAR2(5); -- Variável para armazenar se é líder de facção.
+    v_nome LIDER.NOME%TYPE; -- Variável para armazenar o nome do líder.
+    v_nacao LIDER.NACAO%TYPE; -- Variável para armazenar a nação do líder.
+    v_especie LIDER.ESPECIE%TYPE; -- Variável para armazenar a espécie do líder.
+BEGIN
+    -- Chama o procedimento para obter as informações do líder com o CPI fornecido.
+    get_leader_info('123.456.789-10', c); -- Substitua pelo CPI do líder que deseja testar.
+
+    -- Loop para ler os resultados do cursor.
+    LOOP
+        FETCH c INTO v_cargo, v_e_lider, v_nome, v_nacao, v_especie; -- Recupera os valores do cursor para as variáveis.
+        EXIT WHEN c%NOTFOUND; -- Sai do loop quando todos os registros forem processados.
+
+        -- Exibe os resultados.
+        DBMS_OUTPUT.PUT_LINE('CARGO: ' || v_cargo || ', É LIDER: ' || v_e_lider || ', NOME: ' || v_nome || ', NAÇÃO: ' || v_nacao || ', ESPÉCIE: ' || v_especie);
+    END LOOP;
+
+    CLOSE c; -- Fecha o cursor.
+END;
+/
+
+
+
+
 -- Tabela de usuários
 CREATE TABLE USERS (
     UserID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
