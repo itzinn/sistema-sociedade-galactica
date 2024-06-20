@@ -1,5 +1,6 @@
 from utils.procedures import call_get_planet_info, call_monitor_planet_info, call_relatorio_estrelas, call_relatorio_planetas, \
-    call_relatorio_sistemas, call_relatorio_corpos_celestes, call_relatorio_cc_otimizado, call_relatorio_habitantes_por_nacao
+    call_relatorio_sistemas, call_relatorio_corpos_celestes, call_relatorio_cc_otimizado, call_relatorio_habitantes_por_nacao, \
+    call_get_communities_info
 
 def get_overview_info(usertype):
     forms = ''
@@ -208,14 +209,14 @@ def get_relatorios_info(usertype, cpi, action, start_date=None, end_date=None, p
         # Formulário para relatorio_cc_otimizado
         info += f'''
         <form action="/relatorios" method="GET">
-            <label for="ref_id_otimizado">Ref ID:</label>
-            <input type="text" id="ref_id_otimizado" name="ref_id_otimizado">
-            <label for="ref_type_otimizado">Ref Type:</label>
-            <input type="text" id="ref_type_otimizado" name="ref_type_otimizado">
-            <label for="dist_min_otimizado">Dist Min:</label>
-            <input type="number" id="dist_min_otimizado" name="dist_min_otimizado">
-            <label for="dist_max_otimizado">Dist Max:</label>
-            <input type="number" id="dist_max_otimizado" name="dist_max_otimizado">
+            <label for="ref_id_celestes">Ref ID:</label>
+            <input type="text" id="ref_id_celestes" name="ref_id_celestes">
+            <label for="ref_type_celestes">Ref Type:</label>
+            <input type="text" id="ref_type_celestes" name="ref_type_celestes">
+            <label for="dist_min_celestes">Dist Min:</label>
+            <input type="number" id="dist_min_celestes" name="dist_min_celestes">
+            <label for="dist_max_celestes">Dist Max:</label>
+            <input type="number" id="dist_max_celestes" name="dist_max_celestes">
             <input type="submit" value="Submit">
         </form>
         '''
@@ -232,13 +233,33 @@ def get_relatorios_info(usertype, cpi, action, start_date=None, end_date=None, p
     
     return info
 
-def get_relatorios_lider_info(ehLider):
-
+def get_relatorios_lider_info(ehLider, p_cpi, p_group_by):
     info = ''
 
-    if(ehLider == 'TRUE'):
+    if ehLider == 'TRUE':
         info += '<br><hr><br>'
         info += '<br><h2>Relatório de Líder de Facção</h2><br>'
-        info += '..vc é lider, parabens cara'
 
+        info += '''
+        <form action="/relatorios" method="GET">
+            <label for="p_group_by">Agrupar por:</label>
+            <select id="p_group_by" name="p_group_by">
+                <option value="PLANETA">Planeta</option>
+                <option value="ESPECIE">Espécie</option>
+                <option value="FACCAO">Facção</option>
+                <option value="SISTEMA">Sistema</option>
+            </select><br><br>
+            
+            <input type="submit" value="Gerar Relatório">
+        </form>
+        '''
+
+        try:
+            relatorio_comunidades = call_get_communities_info(p_cpi, p_group_by)
+            info += relatorio_comunidades
+
+            info += '<br><br>'
+        except Exception as e:
+            info += f"<br>Um erro ocorreu: {str(e)}<br>"
+        
     return info

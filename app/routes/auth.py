@@ -28,9 +28,14 @@ def login():
         
         if user and user[2] == md5_hashed_password:
             # Armazena as informações do usuário na sessão
-            cursor.callproc('log_operation', [session['cpi'], 'Logou na aplicação'])
-            
+
             session['user'] = user
+
+            try:
+                cursor.callproc('log_operation', [session['user'][0], 'Logou na aplicação'])
+            except:
+                flash('Erro ao logar ação no banco', 'danger')
+
 
             output_cursor = cursor.var(oracledb.CURSOR)
 

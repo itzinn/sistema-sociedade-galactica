@@ -29,6 +29,8 @@ def relatorios():
     p_nome_nacao = request.args.get('p_nome_nacao')
     p_agrupamento = request.args.get('p_agrupamento')
 
+    p_group_by = request.args.get('p_group_by')
+
     # Se os parâmetros não foram fornecidos na URL
     if data_inicio is None:
         data_inicio = '2023-01-01'
@@ -39,6 +41,6 @@ def relatorios():
                                            ref_type_celestes=ref_type_celestes, dist_min_celestes=dist_min_celestes,\
                                               dist_max_celestes=dist_max_celestes, p_nome_nacao=p_nome_nacao, p_agrupamento=p_agrupamento)
     
-    relatorios_lider_info = get_relatorios_lider_info(ehLider)
+    relatorios_lider_info = get_relatorios_lider_info(ehLider, cpi, p_group_by)
 
     return render_template('relatorios.html', relatorios_info=relatorios_info, relatorios_lider_info=relatorios_lider_info)
