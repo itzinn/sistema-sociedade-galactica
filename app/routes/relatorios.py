@@ -35,7 +35,10 @@ def relatorios():
     if data_fim is None:
         data_fim = '2024-01-01'
 
-    relatorios_info = get_relatorios_info(usertype, cpi, action, data_inicio, data_fim, ref_id_celestes, ref_type_celestes, dist_min_celestes, dist_max_celestes, p_nome_nacao, p_agrupamento)
+    relatorios_info = get_relatorios_info(usertype, cpi, action, data_inicio, data_fim, ref_id_celestes=ref_id_celestes,\
+                                           ref_type_celestes=ref_type_celestes, dist_min_celestes=dist_min_celestes,\
+                                              dist_max_celestes=dist_max_celestes, p_nome_nacao=p_nome_nacao, p_agrupamento=p_agrupamento)
+    
     relatorios_lider_info = get_relatorios_lider_info(ehLider)
 
     return render_template('relatorios.html', relatorios_info=relatorios_info, relatorios_lider_info=relatorios_lider_info)

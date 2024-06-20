@@ -354,11 +354,11 @@ def call_relatorio_habitantes_por_nacao(nome_nacao, agrupamento=None):
         cursor.callproc('PacoteOficial.relatorio_habitantes_por_nacao', [nome_nacao, agrupamento])
         
         output = []
-        line_var = cursor.arrayvar(oracledb.STRING, 32767)  # Large enough array to hold the output lines
+        line_var = cursor.arrayvar(oracledb.STRING, 32767)  
         num_lines_var = cursor.var(oracledb.NUMBER)
         
         while True:
-            num_lines_var.setvalue(0, 10000)  # Number of lines to fetch
+            num_lines_var.setvalue(0, 10000)  
             cursor.callproc("DBMS_OUTPUT.GET_LINES", (line_var, num_lines_var))
             num_lines = int(num_lines_var.getvalue())
             lines = line_var.getvalue()[:num_lines]

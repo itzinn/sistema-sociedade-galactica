@@ -28,12 +28,16 @@ def login():
         
         if user and user[2] == md5_hashed_password:
             # Armazena as informações do usuário na sessão
+            cursor.callproc('log_operation', [session['cpi'], 'Logou na aplicação'])
+            
             session['user'] = user
 
             output_cursor = cursor.var(oracledb.CURSOR)
 
             # Chamada ao procedimento com o CPI do líder e o cursor de saída
             cpi_lider = user[1]  # Substitua pelo CPI do líder que deseja testar
+            
+            
             cursor.callproc("PacoteStart.get_leader_info", [cpi_lider, output_cursor])
 
             # Processar os resultados do cursor de saída
